@@ -77,6 +77,9 @@ class Superwp_Cafe_Pos_Terminal {
                 'ajaxurl' => admin_url('admin-ajax.php'),
                 'nonce' => wp_create_nonce('superwpcaf_pos_nonce')
             ));
+            
+            // Add the new floating cart styles
+            wp_enqueue_style('superwpcaf-floating-cart', plugins_url('assets/css/floating-cart.css', dirname(__FILE__)));
         }
     }
 
