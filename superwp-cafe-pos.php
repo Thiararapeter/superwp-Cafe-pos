@@ -97,7 +97,9 @@ function is_plugin_installed($plugin_path) {
 define( 'SUPERWPCAF_NAME',			'SuperWp Cafe POS' );
 
 // Plugin version
-define( 'SUPERWPCAF_VERSION',		'1.0.01' );
+if (!defined('SUPERWPCAF_VERSION')) {
+    define('SUPERWPCAF_VERSION', '1.0.01');
+}
 
 // Plugin Root File
 define( 'SUPERWPCAF_PLUGIN_FILE',	__FILE__ );
@@ -195,6 +197,20 @@ if (superwpcaf_check_woocommerce()) {
         
         // Flush rewrite rules
         flush_rewrite_rules();
+
+        // In your activation function
+        $default_options = array(
+            'receipt_header' => '',
+            'receipt_footer' => '',
+            'receipt_logo' => '',
+            'auto_print_receipt' => 'no',
+            'printer_type' => '80mm',
+            'print_copies' => 1
+        );
+
+        if (!get_option('superwp_cafe_pos_options')) {
+            add_option('superwp_cafe_pos_options', $default_options);
+        }
     });
 }
 

@@ -308,21 +308,17 @@ jQuery(document).ready(function($) {
         },
 
         showPaymentComplete: function(data) {
-            const receiptHtml = `
-                <div class="payment-receipt">
-                    <h3>Sale Complete</h3>
-                    <p>Order #${data.order_id}</p>
-                    <div class="receipt-details">
-                        <div>Total: ${data.order_total}</div>
-                        <div>Paid: ${data.payment_amount}</div>
-                        <div>Change: ${data.change_amount}</div>
-                    </div>
-                    <button class="print-receipt" data-order-id="${data.order_id}">Print Receipt</button>
-                </div>
-            `;
-
-            // Show receipt modal
-            this.showModal(receiptHtml);
+            // Show receipt preview after payment
+            POSReceipt.previewReceipt(data.order_id)
+                .then(() => {
+                    // Auto-print if enabled in settings
+                    if (superwpcafPOS.auto_print_receipt === 'yes') {
+                        $('.print-receipt').trigger('click');
+                    }
+                })
+                .catch(error => {
+                    this.showNotification('Error showing receipt: ' + error.message, 'error');
+                });
         },
 
         showModal: function(content) {

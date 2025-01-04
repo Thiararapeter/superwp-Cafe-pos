@@ -1,0 +1,156 @@
+/* Receipt Styles optimized for thermal printers */
+.pos-receipt {
+    width: 80mm; /* Standard thermal paper width */
+    font-family: 'Courier New', monospace; /* Monospace font for better thermal printing */
+    font-size: 12px;
+    line-height: 1.4;
+    margin: 0;
+    padding: 0;
+}
+
+/* Ensure content fits thermal paper width */
+.receipt-header {
+    text-align: center;
+    margin-bottom: 10px;
+    padding: 0 5mm;
+}
+
+.receipt-logo {
+    max-width: 70mm; /* Slightly smaller than paper width */
+    height: auto;
+    margin: 0 auto 5px;
+    display: block;
+}
+
+.business-name {
+    font-size: 14px;
+    font-weight: bold;
+    margin: 5px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Optimize tables for thermal printing */
+.receipt-items table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.receipt-items th,
+.receipt-items td {
+    padding: 2px;
+    text-align: left;
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Column widths optimized for 80mm paper */
+.receipt-items th:nth-child(1),
+.receipt-items td:nth-child(1) {
+    width: 40%; /* Item name */
+}
+
+.receipt-items th:nth-child(2),
+.receipt-items td:nth-child(2) {
+    width: 15%; /* Quantity */
+    text-align: center;
+}
+
+.receipt-items th:nth-child(3),
+.receipt-items td:nth-child(3) {
+    width: 20%; /* Price */
+    text-align: right;
+}
+
+.receipt-items th:nth-child(4),
+.receipt-items td:nth-child(4) {
+    width: 25%; /* Total */
+    text-align: right;
+}
+
+/* Use dashed lines instead of solid for better thermal printing */
+.receipt-info,
+.receipt-totals {
+    border-top: 1px dashed #000;
+    border-bottom: 1px dashed #000;
+    margin: 5px 0;
+    padding: 5px 0;
+}
+
+/* Specific print media settings for thermal printers */
+@media print {
+    @page {
+        margin: 0;
+        size: 80mm auto; /* Auto height, fixed width */
+    }
+
+    body * {
+        visibility: hidden;
+    }
+    
+    .pos-receipt,
+    .pos-receipt * {
+        visibility: visible;
+    }
+    
+    .pos-receipt {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 80mm;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Hide preview elements when printing */
+    .receipt-actions,
+    .no-print {
+        display: none !important;
+    }
+
+    /* Ensure proper line breaks */
+    .receipt-items td {
+        white-space: normal;
+    }
+
+    /* Add cut marks for thermal printers */
+    .pos-receipt::after {
+        content: "\n\n\n\n"; /* Extra space for cutting */
+        display: block;
+        text-align: center;
+        border-bottom: 1px dashed #000;
+    }
+}
+
+/* Support for 58mm thermal printers */
+.pos-receipt.thermal-58mm {
+    width: 58mm;
+}
+
+.thermal-58mm .receipt-logo {
+    max-width: 48mm;
+}
+
+/* Preview container styles */
+.receipt-preview-container {
+    background: #f5f5f5;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.print-instructions {
+    position: sticky;
+    top: 0;
+    background: #fff;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #ddd;
+    text-align: center;
+    z-index: 100;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+} 

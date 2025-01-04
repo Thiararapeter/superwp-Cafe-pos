@@ -81,17 +81,30 @@ class Superwp_Cafe_Pos_Terminal {
                 <?php
             });
             
+            // Enqueue existing styles and scripts
             wp_enqueue_style('font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
             wp_enqueue_style('superwpcaf-pos-style', plugins_url('assets/css/pos-terminal.css', dirname(__FILE__)));
+            wp_enqueue_style('superwpcaf-floating-cart', plugins_url('assets/css/floating-cart.css', dirname(__FILE__)));
+            
+            // Add receipt styles
+            wp_enqueue_style('superwpcaf-receipt-style', plugins_url('assets/css/receipt.css', dirname(__FILE__)), [], SUPERWPCAF_VERSION);
+            
+            // Enqueue scripts
             wp_enqueue_script('superwpcaf-pos-script', plugins_url('assets/js/pos-terminal.js', dirname(__FILE__)), array('jquery'), '1.0.0', true);
+            wp_enqueue_script('superwpcaf-receipt-script', plugins_url('assets/js/receipt.js', dirname(__FILE__)), ['jquery'], SUPERWPCAF_VERSION, true);
+            
+            // Get POS options
+            $pos_options = get_option('superwp_cafe_pos_options', array());
             
             wp_localize_script('superwpcaf-pos-script', 'superwpcafPOS', array(
                 'ajaxurl' => admin_url('admin-ajax.php'),
-                'nonce' => wp_create_nonce('superwpcaf_pos_nonce')
+                'nonce' => wp_create_nonce('superwpcaf_pos_nonce'),
+                'auto_print_receipt' => get_option('superwpcaf_auto_print_receipt', 'no'),
+                'receipt_options' => array(
+                    'printer_type' => isset($pos_options['printer_type']) ? $pos_options['printer_type'] : '80mm',
+                    'print_copies' => isset($pos_options['print_copies']) ? intval($pos_options['print_copies']) : 1
+                )
             ));
-            
-            // Add the new floating cart styles
-            wp_enqueue_style('superwpcaf-floating-cart', plugins_url('assets/css/floating-cart.css', dirname(__FILE__)));
         }
     }
 
@@ -801,19 +814,15 @@ class Superwp_Cafe_Pos_Terminal {
     }
 
     public function enqueue_admin_scripts($hook) {
-        if ($hook === 'toplevel_page_superwp-cafe-pos') {
+        if ('toplevel_page_superwp-cafe-pos' === $hook) {
             wp_enqueue_media();
             wp_enqueue_script(
-                'superwpcaf-admin-js',
-                plugins_url('assets/js/admin.js', dirname(__FILE__)),
+                'superwpcaf-admin-settings',
+                plugins_url('assets/js/admin-settings.js', dirname(__FILE__)),
                 array('jquery'),
-                '1.0.0',
+                SUPERWPCAF_VERSION,
                 true
             );
-            
-            wp_localize_script('superwpcaf-admin-js', 'superwpcafAdmin', array(
-                'plugin_url' => plugins_url('', dirname(__FILE__))
-            ));
         }
     }
 
@@ -906,6 +915,57 @@ class Superwp_Cafe_Pos_Terminal {
         wp_send_json_success(array(
             'fields' => $fields
         ));
+    }
+
+    /**
+     * Generate receipt HTML
+     */
+    public function get_receipt() {
+        check_ajax_referer('superwpcaf_pos_nonce', 'nonce');
+        
+        $order_id = isset($_POST['order_id']) ? absint($_POST['order_id']) : 0;
+        if (!$order_id) {
+            wp_send_json_error(['message' => 'Invalid order ID']);
+            return;
+        }
+
+        $order = wc_get_order($order_id);
+        if (!$order) {
+            wp_send_json_error(['message' => 'Order not found']);
+            return;
+        }
+
+        // Prepare receipt data
+        $data = [
+            'order_id' => $order_id,
+            'cashier_name' => $order->get_meta('_pos_cashier_name'),
+            'items' => [],
+            'subtotal' => $order->get_subtotal(),
+            'tax_total' => $order->get_total_tax(),
+            'total' => $order->get_total(),
+            'payment_method' => $order->get_payment_method(),
+            'cash_given' => $order->get_meta('_pos_cash_given'),
+            'change' => $order->get_meta('_pos_change_amount')
+        ];
+
+        // Get items
+        foreach ($order->get_items() as $item) {
+            $data['items'][] = [
+                'name' => $item->get_name(),
+                'quantity' => $item->get_quantity(),
+                'price' => $item->get_subtotal() / $item->get_quantity(),
+                'total' => $item->get_subtotal()
+            ];
+        }
+
+        // Generate receipt HTML
+        ob_start();
+        include SUPERWPCAF_PLUGIN_DIR . 'templates/receipt-template.php';
+        $html = ob_get_clean();
+
+        wp_send_json_success([
+            'html' => $html
+        ]);
     }
 }
 

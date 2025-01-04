@@ -12,6 +12,7 @@ if (!class_exists('Superwp_Cafe_Pos_Admin_Menu')) :
             add_action('admin_menu', array($this, 'add_pos_menu'));
             add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
             add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_styles'));
+            add_action('admin_init', array($this, 'register_pos_settings'));
         }
 
         public function enqueue_admin_scripts($hook) {
@@ -456,6 +457,25 @@ if (!class_exists('Superwp_Cafe_Pos_Admin_Menu')) :
                         <table class="form-table">
                             <tr>
                                 <th scope="row">
+                                    <label for="receipt_logo"><?php _e('Receipt Logo', 'superwp-cafe-pos'); ?></label>
+                                </th>
+                                <td>
+                                    <div class="receipt-logo-preview">
+                                        <?php 
+                                        $logo_id = isset($options['receipt_logo']) ? $options['receipt_logo'] : '';
+                                        $logo_url = $logo_id ? wp_get_attachment_url($logo_id) : '';
+                                        ?>
+                                        <img src="<?php echo esc_url($logo_url); ?>" style="max-width: 200px; <?php echo $logo_url ? '' : 'display: none;'; ?>">
+                                    </div>
+                                    <input type="hidden" name="superwp_cafe_pos_options[receipt_logo]" id="receipt_logo" value="<?php echo esc_attr($logo_id); ?>">
+                                    <button type="button" class="button upload-logo-btn"><?php _e('Upload Logo', 'superwp-cafe-pos'); ?></button>
+                                    <button type="button" class="button remove-logo-btn" <?php echo $logo_url ? '' : 'style="display: none;"'; ?>><?php _e('Remove Logo', 'superwp-cafe-pos'); ?></button>
+                                    <p class="description"><?php _e('Upload a logo to display at the top of receipts', 'superwp-cafe-pos'); ?></p>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th scope="row">
                                     <label for="receipt_header"><?php _e('Receipt Header', 'superwp-cafe-pos'); ?></label>
                                 </th>
                                 <td>
@@ -463,7 +483,7 @@ if (!class_exists('Superwp_Cafe_Pos_Admin_Menu')) :
                                               id="receipt_header" 
                                               rows="4" 
                                               class="large-text"><?php echo esc_textarea($options['receipt_header']); ?></textarea>
-                                    <p class="description"><?php _e('This text will appear at the top of the receipt', 'superwp-cafe-pos'); ?></p>
+                                    <p class="description"><?php _e('This text will appear at the top of the receipt. You can use HTML.', 'superwp-cafe-pos'); ?></p>
                                 </td>
                             </tr>
 
@@ -476,7 +496,55 @@ if (!class_exists('Superwp_Cafe_Pos_Admin_Menu')) :
                                               id="receipt_footer" 
                                               rows="4" 
                                               class="large-text"><?php echo esc_textarea($options['receipt_footer']); ?></textarea>
-                                    <p class="description"><?php _e('This text will appear at the bottom of the receipt', 'superwp-cafe-pos'); ?></p>
+                                    <p class="description"><?php _e('This text will appear at the bottom of the receipt. You can use HTML.', 'superwp-cafe-pos'); ?></p>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th scope="row">
+                                    <label for="auto_print_receipt"><?php _e('Auto Print Receipt', 'superwp-cafe-pos'); ?></label>
+                                </th>
+                                <td>
+                                    <label>
+                                        <input type="checkbox" 
+                                               name="superwp_cafe_pos_options[auto_print_receipt]" 
+                                               id="auto_print_receipt" 
+                                               value="yes" 
+                                               <?php checked(isset($options['auto_print_receipt']) && $options['auto_print_receipt'] === 'yes'); ?>>
+                                        <?php _e('Automatically print receipt after sale', 'superwp-cafe-pos'); ?>
+                                    </label>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th scope="row">
+                                    <label for="printer_type"><?php _e('Printer Type', 'superwp-cafe-pos'); ?></label>
+                                </th>
+                                <td>
+                                    <select name="superwp_cafe_pos_options[printer_type]" id="printer_type">
+                                        <option value="80mm" <?php selected(isset($options['printer_type']) ? $options['printer_type'] : '80mm', '80mm'); ?>>
+                                            <?php _e('80mm Thermal Printer', 'superwp-cafe-pos'); ?>
+                                        </option>
+                                        <option value="58mm" <?php selected(isset($options['printer_type']) ? $options['printer_type'] : '80mm', '58mm'); ?>>
+                                            <?php _e('58mm Thermal Printer', 'superwp-cafe-pos'); ?>
+                                        </option>
+                                    </select>
+                                    <p class="description"><?php _e('Select your thermal printer paper size', 'superwp-cafe-pos'); ?></p>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th scope="row">
+                                    <label for="print_copies"><?php _e('Receipt Copies', 'superwp-cafe-pos'); ?></label>
+                                </th>
+                                <td>
+                                    <input type="number" 
+                                           name="superwp_cafe_pos_options[print_copies]" 
+                                           id="print_copies" 
+                                           value="<?php echo esc_attr(isset($options['print_copies']) ? $options['print_copies'] : 1); ?>"
+                                           min="1"
+                                           max="3">
+                                    <p class="description"><?php _e('Number of receipt copies to print (1-3)', 'superwp-cafe-pos'); ?></p>
                                 </td>
                             </tr>
                         </table>
@@ -627,6 +695,39 @@ if (!class_exists('Superwp_Cafe_Pos_Admin_Menu')) :
                 self::$instance = new self();
             }
             return self::$instance;
+        }
+
+        public function sanitize_pos_settings($input) {
+            $sanitized = array();
+            
+            // Sanitize printer type
+            $sanitized['printer_type'] = isset($input['printer_type']) && 
+                                        in_array($input['printer_type'], array('80mm', '58mm')) ? 
+                                        $input['printer_type'] : '80mm';
+            
+            // Sanitize print copies
+            $sanitized['print_copies'] = isset($input['print_copies']) ? 
+                                        min(max(intval($input['print_copies']), 1), 3) : 1;
+            
+            // Sanitize other existing fields
+            $sanitized['receipt_header'] = isset($input['receipt_header']) ? 
+                                          wp_kses_post($input['receipt_header']) : '';
+            $sanitized['receipt_footer'] = isset($input['receipt_footer']) ? 
+                                          wp_kses_post($input['receipt_footer']) : '';
+            $sanitized['receipt_logo'] = isset($input['receipt_logo']) ? 
+                                      absint($input['receipt_logo']) : '';
+            $sanitized['auto_print_receipt'] = isset($input['auto_print_receipt']) ? 
+                                              'yes' : 'no';
+            
+            return $sanitized;
+        }
+
+        public function register_pos_settings() {
+            register_setting(
+                'superwp_cafe_pos_settings',
+                'superwp_cafe_pos_options',
+                array($this, 'sanitize_pos_settings')
+            );
         }
     }
 
