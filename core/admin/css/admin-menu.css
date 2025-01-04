@@ -1,0 +1,201 @@
+.superwp-cafe-pos-container {
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.pos-launch-button {
+    text-align: center;
+    margin: 40px 0;
+}
+
+.pos-launch-button .button-hero {
+    font-size: 20px;
+    padding: 20px 40px;
+    height: auto;
+    line-height: normal;
+}
+
+.pos-stats {
+    margin-top: 40px;
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* User Management Styles */
+.pos-user-management {
+    margin: 20px 0;
+}
+
+.pos-add-user-section {
+    background: #fff;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid #ccd0d4;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+}
+
+.pos-users-list-section {
+    background: #fff;
+    padding: 20px;
+    border: 1px solid #ccd0d4;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+}
+
+/* Modal Styles */
+.pos-modal {
+    display: none;
+    position: fixed;
+    z-index: 999999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.pos-modal-content {
+    position: relative;
+    background-color: #fff;
+    margin: 5% auto;
+    padding: 20px;
+    width: 70%;
+    max-width: 600px;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.pos-modal-close {
+    position: absolute;
+    right: 20px;
+    top: 10px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.pos-modal-close:hover {
+    color: #666;
+}
+
+/* Button Styles */
+.row-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.button {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.button .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+.view-user-details {
+    background: #2271b1;
+    border-color: #2271b1;
+    color: #fff;
+}
+
+.edit-user-details {
+    background: #2271b1;
+    border-color: #2271b1;
+    color: #fff;
+}
+
+.delete-user {
+    background: #dc3232;
+    border-color: #dc3232;
+    color: #fff;
+}
+
+.pos-role-select {
+    margin: 0 5px;
+    vertical-align: middle;
+}
+
+/* Form Styles */
+.form-table th {
+    width: 200px;
+}
+
+.form-table td {
+    padding: 15px 10px;
+}
+
+.form-table input[type="text"],
+.form-table input[type="email"],
+.form-table select {
+    width: 100%;
+    max-width: 25em;
+}
+
+/* Responsive Styles */
+@media screen and (max-width: 782px) {
+    .row-actions {
+        flex-direction: column;
+    }
+    
+    .pos-role-select {
+        width: 100%;
+        margin: 5px 0;
+    }
+    
+    .pos-modal-content {
+        width: 90%;
+        margin: 10% auto;
+    }
+}
+
+/* Status Button Styles */
+.activate-user {
+    background: #00a32a !important;
+    border-color: #00a32a !important;
+    color: #fff !important;
+}
+
+.deactivate-user {
+    background: #cc1818 !important;
+    border-color: #cc1818 !important;
+    color: #fff !important;
+}
+
+/* Add status indicator to the users list */
+.user-status {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    line-height: 1.4;
+    margin-left: 8px;
+}
+
+.user-status-active {
+    background: #00a32a;
+    color: #fff;
+}
+
+.user-status-inactive {
+    background: #cc1818;
+    color: #fff;
+}
+
+.view-profile {
+    background: #2271b1;
+    border-color: #2271b1;
+    color: #fff;
+}
+
+.view-profile:hover {
+    background: #135e96;
+    border-color: #135e96;
+    color: #fff;
+}

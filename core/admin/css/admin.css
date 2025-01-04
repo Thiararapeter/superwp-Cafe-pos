@@ -1,0 +1,347 @@
+/* POS Roles Management */
+.pos-roles-management {
+    margin-top: 20px;
+}
+
+.pos-roles-header {
+    margin-bottom: 20px;
+}
+
+.pos-roles-header h3 {
+    margin-bottom: 10px;
+}
+
+.pos-status {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.pos-status-active {
+    background-color: #dff0d8;
+    color: #3c763d;
+}
+
+.pos-status-inactive {
+    background-color: #f2dede;
+    color: #a94442;
+}
+
+.toggle-status {
+    margin-left: 5px !important;
+}
+
+.toggle-status[data-status="active"] {
+    color: #a94442;
+    border-color: #a94442;
+}
+
+.toggle-status[data-status="inactive"] {
+    color: #3c763d;
+    border-color: #3c763d;
+}
+
+/* Table Styles */
+.pos-roles-management .wp-list-table {
+    margin-top: 15px;
+}
+
+.pos-roles-management .wp-list-table th {
+    font-weight: 600;
+}
+
+.pos-roles-management .wp-list-table td {
+    vertical-align: middle;
+}
+
+/* Role Management */
+.pos-roles-section {
+    margin-bottom: 40px;
+}
+
+.capabilities-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.capabilities-list label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+/* Modal Styles */
+.pos-modal {
+    display: none;
+    position: fixed;
+    z-index: 100000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    overflow-y: auto;
+}
+
+.pos-modal-content {
+    background-color: #fff;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 90%;
+    max-width: 600px;
+    position: relative;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.pos-modal-close {
+    position: absolute;
+    right: 20px;
+    top: 10px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.submit-wrapper {
+    padding: 15px 0;
+    text-align: right;
+}
+
+/* Role Table */
+.roles-table td {
+    vertical-align: middle;
+}
+
+.delete-role {
+    margin-left: 5px !important;
+    color: #dc3232 !important;
+    border-color: #dc3232 !important;
+    background: #fff !important;
+}
+
+.delete-role:hover {
+    background: #dc3232 !important;
+    color: #fff !important;
+}
+
+.delete-role:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Success message styles */
+.notice {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-left-width: 4px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+    margin: 20px 0;
+    padding: 1px 12px;
+    position: relative;
+}
+
+.notice-success {
+    border-left-color: #00a32a;
+}
+
+.notice-error {
+    border-left-color: #d63638;
+}
+
+.notice p {
+    margin: 0.5em 0;
+    padding: 2px;
+    font-size: 13px;
+}
+
+/* Add these styles to your existing CSS */
+.capability-checkbox {
+    display: block;
+    margin-bottom: 8px;
+    padding: 8px;
+    background: #f8f8f8;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.capability-checkbox:hover {
+    background: #f0f0f0;
+}
+
+.capability-checkbox input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+/* Add loading state styles */
+.modal-loading {
+    text-align: center;
+    padding: 20px;
+}
+
+.modal-loading .spinner {
+    float: none;
+    margin: 0 auto 10px;
+}
+
+/* Action buttons styling */
+.row-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.button-small {
+    padding: 0 8px !important;
+    line-height: 26px !important;
+    height: 28px !important;
+    display: inline-flex !important;
+    align-items: center;
+}
+
+.edit-role {
+    background: #2271b1 !important;
+    color: #fff !important;
+    border-color: #2271b1 !important;
+}
+
+.edit-role:hover {
+    background: #135e96 !important;
+    border-color: #135e96 !important;
+}
+
+.delete-role {
+    background: #fff !important;
+    color: #dc3232 !important;
+    border-color: #dc3232 !important;
+    display: inline-flex !important;
+    align-items: center;
+    gap: 4px;
+}
+
+.delete-role:hover {
+    background: #dc3232 !important;
+    color: #fff !important;
+}
+
+.delete-role .dashicons {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+    margin-right: 4px;
+}
+
+/* Make sure buttons are visible in the table */
+.roles-table td {
+    position: relative;
+}
+
+.roles-table .row-actions {
+    opacity: 1;
+    position: relative;
+    padding: 4px 0;
+}
+
+/* Settings page styles */
+.pos-settings-wrapper {
+    max-width: 960px;
+    margin-top: 20px;
+}
+
+.pos-settings-section {
+    background: #fff;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid #ccd0d4;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+}
+
+.pos-settings-section h2 {
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.form-table th {
+    width: 200px;
+    padding: 20px 10px 20px 0;
+}
+
+.form-table td {
+    padding: 15px 10px;
+}
+
+.form-table label {
+    margin-bottom: 5px;
+    display: inline-block;
+}
+
+.form-table input[type="checkbox"] + label {
+    margin-left: 8px;
+}
+
+.description {
+    color: #666;
+    font-style: italic;
+    margin-top: 4px;
+}
+
+/* User Management Styles */
+.pos-users-section {
+    margin-top: 40px;
+}
+
+.header-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-email {
+    color: #666;
+    font-size: 12px;
+}
+
+.user-role-select {
+    min-width: 150px;
+}
+
+/* User search input */
+#user-search {
+    margin-right: 10px;
+    padding: 5px 10px;
+}
+
+/* Status indicator */
+.pos-status {
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+/* Button states */
+.button-disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.toggle-status {
+    min-width: 100px;
+    text-align: center;
+} 

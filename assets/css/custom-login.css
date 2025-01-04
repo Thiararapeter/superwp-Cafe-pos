@@ -1,0 +1,373 @@
+/* Custom Login Page Styles */
+body.login {
+    background: linear-gradient(135deg, #2271b1 0%, #135e96 100%);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Animated Background Shapes */
+body.login::before,
+body.login::after {
+    content: '';
+    position: absolute;
+    width: 1000px;
+    height: 1000px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+    animation: float 20s infinite linear;
+    z-index: 0;
+}
+
+body.login::before {
+    top: -400px;
+    left: -200px;
+    animation-delay: -5s;
+}
+
+body.login::after {
+    bottom: -400px;
+    right: -200px;
+    animation-duration: 25s;
+}
+
+/* Floating Particles */
+.login-particles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.particle {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    animation: particleFloat 15s infinite linear;
+}
+
+/* Generate 20 particles with different positions and animations */
+@for $i from 1 through 20 {
+    .particle:nth-child(#{$i}) {
+        left: #{random(100)}vw;
+        top: #{random(100)}vh;
+        transform: scale(#{random(100) / 100});
+        animation-delay: -#{random(15)}s;
+        animation-duration: #{10 + random(20)}s;
+    }
+}
+
+/* Login Form Container */
+#login {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    width: 400px;
+    position: relative;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    z-index: 2;
+    animation: formAppear 0.6s ease-out;
+}
+
+/* Add shine effect to the form */
+#login::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+    );
+    animation: shine 8s infinite;
+}
+
+/* Animations */
+@keyframes float {
+    0% {
+        transform: rotate(0deg) translate(0, 0);
+    }
+    50% {
+        transform: rotate(180deg) translate(100px, 50px);
+    }
+    100% {
+        transform: rotate(360deg) translate(0, 0);
+    }
+}
+
+@keyframes particleFloat {
+    0% {
+        transform: translateY(0) rotate(0deg);
+    }
+    100% {
+        transform: translateY(-100vh) rotate(360deg);
+    }
+}
+
+@keyframes shine {
+    0% {
+        left: -100%;
+        opacity: 0;
+    }
+    20% {
+        left: 100%;
+        opacity: 0.6;
+    }
+    100% {
+        left: 100%;
+        opacity: 0;
+    }
+}
+
+@keyframes formAppear {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Add this to your PHP file to inject the particles */
+<?php
+add_action('login_header', function() {
+    echo '<div class="login-particles">';
+    for ($i = 0; $i < 20; $i++) {
+        echo '<div class="particle"></div>';
+    }
+    echo '</div>';
+});
+?>
+
+.login h1 {
+    margin-bottom: 20px;
+}
+
+.login h1 a {
+    background-size: contain !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    width: 200px !important;
+    height: 80px !important;
+    margin: 0 auto 20px !important;
+    padding: 0 !important;
+    display: block;
+}
+
+/* Adjust logo container */
+.login h1 {
+    margin: 0 0 25px;
+    padding: 0;
+}
+
+/* Logo wrapper for better centering */
+.login-logo-wrapper {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.login form {
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+    border: none;
+    margin-top: 15px;
+}
+
+.login label {
+    color: #333;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.login form .input {
+    background: #fff;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 15px;
+    font-size: 15px;
+    height: auto;
+    margin: 5px 0 15px;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+.login form .input:focus {
+    border-color: #2271b1;
+    box-shadow: 0 0 0 3px rgba(34, 113, 177, 0.1);
+    outline: none;
+}
+
+/* Submit Button */
+.wp-core-ui .button-primary {
+    background: #2271b1;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 20px;
+    height: auto;
+    font-size: 15px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    width: 100%;
+    margin-top: 10px;
+    transition: all 0.3s ease;
+}
+
+.wp-core-ui .button-primary:hover {
+    background: #135e96;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(19, 94, 150, 0.2);
+}
+
+.wp-core-ui .button-primary:active {
+    transform: translateY(0);
+}
+
+/* Remember Me Checkbox */
+.forgetmenot {
+    margin-bottom: 15px;
+}
+
+.forgetmenot label {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+input[type=checkbox] {
+    border: 2px solid #e2e8f0;
+    border-radius: 4px;
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+}
+
+/* Messages */
+.login .message,
+.login #login_error,
+.login .success {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    margin: 0 0 20px;
+    text-align: center;
+}
+
+.login #login_error {
+    border-left-color: #dc3232;
+}
+
+.login .success {
+    border-left-color: #46b450;
+}
+
+/* Links */
+.login #nav,
+.login #backtoblog {
+    text-align: center;
+    margin: 20px 0 0;
+    padding: 0;
+}
+
+.login #nav a,
+.login #backtoblog a {
+    color: #fff;
+    font-size: 13px;
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+
+.login #nav a:hover,
+.login #backtoblog a:hover {
+    color: #fff;
+    opacity: 0.8;
+}
+
+/* Password Visibility Toggle */
+.login .button.wp-hide-pw {
+    color: #2271b1;
+    border: none;
+    box-shadow: none;
+    margin-top: 5px;
+}
+
+.login .button.wp-hide-pw:hover {
+    color: #135e96;
+    background: none;
+}
+
+/* Language Switcher if present */
+.language-switcher {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.language-switcher select {
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 14px;
+    background: #fff;
+}
+
+/* Privacy Policy Link */
+.privacy-policy-page-link {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.privacy-policy-link {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 12px;
+}
+
+.privacy-policy-link:hover {
+    color: #fff;
+}
+
+/* Cafe Branding */
+.cafe-brand {
+    text-align: center;
+    margin-bottom: 25px;
+    padding: 0;
+}
+
+.cafe-brand h2 {
+    color: #2271b1;
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0 0 5px;
+    line-height: 1.3;
+}
+
+.cafe-brand p {
+    color: #666;
+    font-size: 16px;
+    margin: 0;
+    font-weight: 500;
+} 

@@ -1,0 +1,195 @@
+.superwp-cafe-pos-container {
+    margin-top: 20px;
+}
+
+.pos-launch-button {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.pos-launch-button .button-hero {
+    padding: 15px 30px;
+    height: auto;
+    font-size: 16px;
+    line-height: 1.4;
+}
+
+.pos-stats {
+    margin-top: 30px;
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+#custom_redirect_url_wrapper {
+    margin-top: 10px;
+}
+
+#custom_redirect_url {
+    width: 100%;
+    max-width: 400px;
+}
+
+.redirect-settings {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #ddd;
+}
+
+/* System Settings Styles */
+.settings-section {
+    background: #fff;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.settings-section h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+/* Logo Selection Styles */
+.pos-logo-upload {
+    background: #fff;
+    padding: 25px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    max-width: 500px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.logo-preview-container {
+    margin-bottom: 20px;
+}
+
+.logo-preview-container label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #1d2327;
+}
+
+.logo-preview {
+    background: #f8f9fa;
+    padding: 25px;
+    border: 2px dashed #ddd;
+    border-radius: 4px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.logo-preview img {
+    max-width: 200px;
+    max-height: 80px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    object-fit: contain;
+}
+
+.logo-actions {
+    display: flex;
+    gap: 12px;
+    margin: 20px 0;
+}
+
+.logo-actions .button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    height: auto;
+}
+
+.logo-actions .button i {
+    font-size: 16px;
+    line-height: 1;
+}
+
+.hidden {
+    display: none !important;
+}
+
+#remove_pos_logo {
+    color: #dc3232;
+    border-color: #dc3232;
+}
+
+#remove_pos_logo:hover {
+    color: #fff;
+    background: #dc3232;
+}
+
+/* Notice Styling */
+.notice {
+    margin: 0 0 15px 0;
+    padding: 8px 12px;
+}
+
+.pos-logo-upload .description {
+    margin-top: 10px;
+    color: #666;
+    font-style: italic;
+}
+
+.settings-footer {
+    margin-top: 20px;
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* Tab Navigation */
+.nav-tab-wrapper {
+    margin-bottom: 20px;
+}
+
+.nav-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 15px;
+}
+
+.nav-tab i {
+    font-size: 14px;
+}
+
+/* System Settings Tab Specific */
+.nav-tab[href*="system_settings"] {
+    position: relative;
+}
+
+.nav-tab[href*="system_settings"] i {
+    color: #2271b1;
+}
+
+.nav-tab-active[href*="system_settings"] {
+    border-bottom-color: #f0f0f1;
+    background: #f0f0f1;
+}
+
+/* Settings Content */
+.superwpcaf-settings-content {
+    background: #fff;
+    padding: 20px;
+    border: 1px solid #ccd0d4;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+    margin-top: 20px;
+} 
