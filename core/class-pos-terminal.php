@@ -44,6 +44,9 @@ class Superwp_Cafe_Pos_Terminal {
         add_filter('superwpcaf_settings_tabs', array($this, 'add_system_settings_tab'));
         add_action('superwpcaf_settings_content', array($this, 'render_system_settings_content'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
+        
+        // Add sync products handler
+        add_action('wp_ajax_superwpcaf_sync_products', array($this, 'sync_products'));
     }
 
     public function remove_pos_page_title($title, $id = null) {
@@ -99,8 +102,9 @@ class Superwp_Cafe_Pos_Terminal {
                         printf(__('Cashier: %s', 'superwp-cafe-pos'), esc_html($user->display_name));
                         ?>
                     </div>
-                    <button class="sync-button" title="<?php _e('Sync Data', 'superwp-cafe-pos'); ?>">
+                    <button class="sync-button" title="<?php _e('Sync Products', 'superwp-cafe-pos'); ?>">
                         <i class="fas fa-sync-alt"></i>
+                        <span class="screen-reader-text"><?php _e('Sync Products', 'superwp-cafe-pos'); ?></span>
                     </button>
                     <a href="<?php echo wp_logout_url(home_url('/pos-terminal/')); ?>" class="logout-button" title="<?php _e('Logout', 'superwp-cafe-pos'); ?>">
                         <i class="fas fa-sign-out-alt"></i>
@@ -788,6 +792,29 @@ class Superwp_Cafe_Pos_Terminal {
             </form>
         </div>
         <?php
+    }
+
+    public function sync_products() {
+        check_ajax_referer('superwpcaf_pos_nonce', 'nonce');
+
+        try {
+            // Clear transients/cache
+            delete_transient('superwpcaf_products_cache');
+            
+            // Force WooCommerce to refresh its product cache
+            wc_delete_product_transients();
+            
+            // Clear any custom product caches
+            do_action('superwpcaf_clear_product_cache');
+            
+            wp_send_json_success(array(
+                'message' => __('Products synchronized successfully', 'superwp-cafe-pos')
+            ));
+        } catch (Exception $e) {
+            wp_send_json_error(array(
+                'message' => $e->getMessage()
+            ));
+        }
     }
 }
 

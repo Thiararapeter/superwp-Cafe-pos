@@ -346,6 +346,16 @@ button:hover {
     border: 1px solid var(--border-color-light);
 }
 
+/* Add spinning animation for sync button */
+.sync-button.syncing i {
+    animation: spin 1s linear infinite;
+}
+
+.sync-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
 .pos-error {
     background-color: #dc3232;
     color: #fff;
@@ -1752,4 +1762,63 @@ input[type="radio"]:checked + .payment-label {
     0% { content: "."; }
     33% { content: ".."; }
     66% { content: "..."; }
+}
+
+/* Notification styles */
+.pos-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 14px;
+    z-index: 9999;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation: slideIn 0.3s ease;
+}
+
+.pos-notification-success {
+    background-color: #4caf50;
+}
+
+.pos-notification-error {
+    background-color: #f44336;
+}
+
+.pos-notification-info {
+    background-color: #2196f3;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Update sync button styles */
+.sync-button {
+    position: relative;
+    padding: 8px 15px;
+}
+
+.sync-button.syncing {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.sync-button.syncing i {
+    animation: spin 1s linear infinite;
+}
+
+.sync-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
 }

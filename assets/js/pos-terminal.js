@@ -331,21 +331,53 @@ jQuery(document).ready(function($) {
         },
 
         syncData: function() {
+            const $syncButton = $('.sync-button');
+            
+            // Prevent multiple clicks
+            if ($syncButton.prop('disabled')) {
+                return;
+            }
+            
+            // Add loading state
+            $syncButton.prop('disabled', true)
+                       .addClass('syncing');
+            
+            // Show loading notification
+            this.showNotification('Syncing products...', 'info');
+            
             $.ajax({
                 url: superwpcafPOS.ajaxurl,
                 type: 'POST',
                 data: {
-                    action: 'superwpcaf_sync_data',
+                    action: 'superwpcaf_sync_products',
                     nonce: superwpcafPOS.nonce
                 },
                 success: function(response) {
                     if (response.success) {
-                        alert('Data synchronized successfully!');
+                        // Reload products
                         this.loadProducts();
+                        // Show success message
+                        this.showNotification('Products synchronized successfully', 'success');
                     } else {
-                        alert('Synchronization failed. Please try again.');
+                        // Show error message with details if available
+                        this.showNotification(
+                            response.data?.message || 'Error syncing products. Please try again.',
+                            'error'
+                        );
                     }
-                }.bind(this)
+                }.bind(this),
+                error: function(xhr, status, error) {
+                    // Show detailed error message
+                    this.showNotification(
+                        'Error syncing products: ' + (error || 'Unknown error occurred'),
+                        'error'
+                    );
+                }.bind(this),
+                complete: function() {
+                    // Remove loading state
+                    $syncButton.prop('disabled', false)
+                              .removeClass('syncing');
+                }
             });
         },
 
