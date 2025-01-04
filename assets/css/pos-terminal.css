@@ -1,28 +1,33 @@
 .pos-container {
     max-width: 100%;
-    margin: 0;
-    padding: 0;
-    min-height: 100vh;
+    margin: 20px 0 0 0;
+    padding: 15px 15px 0 15px;
+    height: calc(100vh - 35px);
     display: flex;
     flex-direction: column;
+    overflow: hidden;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    background-color: var(--bg-primary-light);
+    color: var(--text-primary-light);
 }
 
 .pos-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 15px;
-    background: #fff;
-    border-radius: 0;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    height: 45px;
-    margin: 0;
+    padding: 15px 20px;
+    background: #2c3e50 !important;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    margin-bottom: 20px;
+    color: #ffffff;
 }
 
 .pos-header h2 {
     margin: 0;
-    color: #2271b1;
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: 500;
 }
 
 .pos-header-actions {
@@ -33,15 +38,14 @@
 
 .cashier-info {
     font-size: 14px;
-    color: #666;
+    color: rgba(255, 255, 255, 0.9);
 }
 
 .pos-main {
     display: grid;
-    grid-template-columns: 200px 1fr;
-    gap: 0;
-    height: calc(100vh - 35px);
-    width: 100%;
+    grid-template-columns: 220px 1fr;
+    gap: 15px;
+    height: calc(100vh - 95px);
     overflow: hidden;
 }
 
@@ -55,41 +59,47 @@
 }
 
 .pos-categories {
-    background: #fff;
-    border-right: 1px solid #ddd;
+    background: #2c3e50 !important;
+    border-right: none;
+    border-radius: 8px;
     height: 100%;
     overflow-y: auto;
-    padding: 0;
+    padding: 15px 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 
 .pos-products {
-    background: #f0f0f1;
+    background: #ffffff;
+    border-radius: 8px;
     height: 100%;
     overflow-y: auto;
-    padding: 10px;
-    flex: 1;
+    padding: 15px;
+    margin: 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
 .products-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
     padding: 15px;
+    margin: 0;
 }
 
 .product-item {
-    flex: 0 0 calc(20% - 12px);
-    min-width: 160px;
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
+    background: var(--bg-secondary-light);
+    border: 1px solid var(--border-color-light);
+    border-radius: 12px;
     padding: 15px;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
 }
 
 .product-item:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(46, 125, 50, 0.08);
+    border-color: var(--accent-color);
 }
 
 .product-image {
@@ -117,12 +127,13 @@
     font-weight: 500;
     margin: 0;
     line-height: 1.3;
+    color: var(--text-primary-light);
 }
 
 .product-price {
     font-size: 16px;
     font-weight: bold;
-    color: #2271b1;
+    color: var(--accent-color);
 }
 
 .stock-status {
@@ -145,7 +156,7 @@
 .add-to-cart {
     width: 100%;
     padding: 8px;
-    background: #2271b1;
+    background: var(--accent-color);
     color: white;
     border: none;
     border-radius: 4px;
@@ -159,7 +170,7 @@
 }
 
 .add-to-cart:hover {
-    background: #135e96;
+    background: var(--accent-hover);
 }
 
 .add-to-cart:disabled {
@@ -311,25 +322,28 @@ button:hover {
     width: 100%;
     padding: 12px;
     font-size: 16px;
-    background: #00a32a;
+    background: var(--success-color);
 }
 
 .pay-button:hover {
-    background: #008a20;
+    background: var(--accent-hover);
 }
 
 .clear-cart {
-    background: #dc3232;
+    background: var(--danger-color);
 }
 
 .clear-cart:hover {
-    background: #b32d2e;
+    background: #dc2626;
 }
 
 .sync-button {
     display: flex;
     align-items: center;
     gap: 5px;
+    background: var(--bg-accent-light);
+    color: var(--accent-color);
+    border: 1px solid var(--border-color-light);
 }
 
 .pos-error {
@@ -356,22 +370,26 @@ button:hover {
 }
 
 .category-item {
-    padding: 12px 15px;
+    padding: 12px 20px;
     cursor: pointer;
-    border-bottom: 1px solid #eee;
-    transition: background-color 0.2s;
-    font-size: 14px;
-    color: #333;
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+    color: #ffffff !important;
+    font-weight: 500;
+    position: relative;
 }
 
 .category-item:hover {
-    background-color: #f5f5f5;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-left-color: #e74c3c;
+    color: #ffffff !important;
 }
 
 .category-item.active {
-    background-color: #2271b1;
-    color: #fff;
-    font-weight: 500;
+    background-color: rgba(231, 76, 60, 0.2);
+    border-left-color: #e74c3c;
+    color: #ffffff !important;
+    font-weight: 600;
 }
 
 .products-pagination {
@@ -435,11 +453,11 @@ button:hover {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    background: #2271b1;
+    background: var(--accent-color);
     color: white;
-    padding: 15px 25px;
-    border-radius: 50px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    padding: 12px 25px;
+    border-radius: 25px;
+    box-shadow: 0 4px 12px rgba(34,113,177,0.2);
     display: flex;
     align-items: center;
     gap: 10px;
@@ -449,7 +467,7 @@ button:hover {
 }
 
 .floating-cart:hover {
-    background: #135e96;
+    background: var(--accent-hover);
     transform: translateY(-2px);
 }
 
@@ -471,6 +489,7 @@ button:hover {
 .cart-total {
     font-weight: bold;
     margin-left: 5px;
+    color: var(--accent-color);
 }
 
 /* Responsive Grid */
@@ -518,17 +537,20 @@ button:hover {
 
 /* Add styles for WordPress admin bar compatibility */
 .admin-bar .pos-container {
-    min-height: calc(100vh - 32px);
+    height: calc(100vh - 67px);
 }
 
 .admin-bar .pos-categories,
 .admin-bar .pos-products {
-    height: calc(100vh - 67px);
+    height: calc(100vh - 112px);
 }
 
 /* Ensure no horizontal scrolling */
 html, body {
-    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    height: 100%;
 }
 
 /* Responsive adjustments */
@@ -905,33 +927,39 @@ html, body {
 /* Search field styles */
 .pos-search {
     position: relative;
-    flex: 0 1 300px;
-    margin: 0 20px;
+    min-width: 300px;
 }
 
 .pos-search input {
     width: 100%;
-    height: 32px;
-    padding: 5px 15px 5px 35px;
-    border: 1px solid #ddd;
-    border-radius: 16px;
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+    border-radius: 25px;
+    padding: 10px 20px;
+    padding-left: 45px;
     font-size: 14px;
-    transition: all 0.2s;
+    transition: all 0.3s ease;
 }
 
 .pos-search input:focus {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
     outline: none;
-    border-color: #2271b1;
-    box-shadow: 0 0 0 1px #2271b1;
 }
 
-.pos-search .search-icon {
+.pos-search input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.search-icon {
     position: absolute;
-    left: 12px;
+    left: 15px;
     top: 50%;
     transform: translateY(-50%);
-    color: #666;
-    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7) !important;
+    font-size: 16px;
 }
 
 /* Search loading state */
@@ -944,12 +972,12 @@ html, body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 15px;
-    background: #fff;
-    border-radius: 0;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    height: 45px;
-    margin: 0;
+    padding: 15px 20px;
+    background: #2c3e50 !important;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    margin-bottom: 20px;
+    color: #ffffff;
 }
 
 /* Responsive styles */
@@ -1308,16 +1336,15 @@ input[type="radio"]:checked + .payment-label {
     align-items: center;
     gap: 8px;
     padding: 8px 15px;
-    background: #dc3232;
-    color: #fff;
+    background: #e74c3c !important;
+    color: #ffffff !important;
     border-radius: 4px;
     text-decoration: none;
     transition: all 0.2s;
 }
 
 .logout-button:hover {
-    background: #b32d2d;
-    color: #fff;
+    background: #c0392b !important;
 }
 
 .logout-button i {
@@ -1327,4 +1354,402 @@ input[type="radio"]:checked + .payment-label {
 .logout-button span {
     font-size: 14px;
     font-weight: 500;
+}
+
+/* Theme Variables */
+:root {
+    /* Light Theme Colors - Green theme */
+    --bg-primary-light: #caffc4;  /* Faded green background */
+    --bg-secondary-light: #ffffff;
+    --bg-accent-light: #e8f5e9;   /* Light green accent */
+    --text-primary-light: #2e7d32; /* Dark green text */
+    --text-secondary-light: #558b2f;
+    --border-color-light: #a5d6a7;
+    --accent-color: #2e7d32;      /* Primary green */
+    --accent-hover: #1b5e20;      /* Darker green for hover */
+    --success-color: #43a047;     /* Green success */
+    --danger-color: #e53935;      /* Keep red for danger */
+    
+    /* Dark Theme Colors - Keep as is */
+    --bg-primary-dark: #1a1a1a;
+    --bg-secondary-dark: #242424;
+    --bg-accent-dark: #2d2d2d;
+    --text-primary-dark: #e2e8f0;
+    --text-secondary-dark: #94a3b8;
+    --border-color-dark: #404040;
+}
+
+/* Theme Toggle Button */
+.theme-toggle {
+    background: none;
+    border: none;
+    color: var(--text-secondary-light);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.theme-toggle:hover {
+    background: var(--border-color-light);
+}
+
+/* Light Theme (default) */
+.pos-container {
+    background-color: var(--bg-primary-light);
+    color: var(--text-primary-light);
+}
+
+.pos-header {
+    background: var(--bg-secondary-light);
+    color: var(--text-primary-light);
+}
+
+.pos-categories,
+.pos-products {
+    background: var(--bg-secondary-light);
+    border-color: var(--border-color-light);
+}
+
+.category-item {
+    color: #333333;
+    font-weight: 500;
+}
+
+.product-item {
+    background: var(--bg-secondary-light);
+    border-color: var(--border-color-light);
+}
+
+/* Dark Theme */
+.dark-theme .pos-container {
+    background-color: var(--bg-primary-dark);
+    color: var(--text-primary-dark);
+}
+
+.dark-theme .pos-header {
+    background: var(--bg-secondary-dark);
+    color: var(--text-primary-dark);
+}
+
+.dark-theme .pos-categories,
+.dark-theme .pos-products {
+    background: var(--bg-secondary-dark);
+    border-color: var(--border-color-dark);
+}
+
+.dark-theme .category-item {
+    color: #e0e0e0;
+}
+
+.dark-theme .category-item:hover {
+    background-color: rgba(229, 57, 53, 0.1);
+    border-left-color: #ff5252;
+    color: #ffffff;
+}
+
+.dark-theme .category-item.active {
+    background-color: rgba(229, 57, 53, 0.15);
+    border-left-color: #ff5252;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.dark-theme .product-item {
+    background: var(--bg-secondary-dark);
+    border-color: var(--border-color-dark);
+}
+
+.dark-theme .product-name {
+    color: var(--text-primary-dark);
+}
+
+.dark-theme .product-price {
+    color: #60a5fa;
+}
+
+.dark-theme .pos-search input {
+    background-color: var(--bg-accent-dark);
+    border-color: var(--border-color-dark);
+    color: var(--text-primary-dark);
+}
+
+.dark-theme .pos-search input::placeholder {
+    color: var(--text-secondary-dark);
+}
+
+.dark-theme .search-icon {
+    color: var(--text-secondary-dark);
+}
+
+/* Faded Black Background Overlay */
+.pos-container::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.03);
+    pointer-events: none;
+    z-index: -1;
+}
+
+.dark-theme .pos-container::before {
+    background-color: rgba(0, 0, 0, 0.15);
+}
+
+/* Fix white sections in dark theme */
+.dark-theme .pos-products {
+    background: var(--bg-secondary-dark);
+    border-color: var(--border-color-dark);
+}
+
+.dark-theme .products-grid {
+    background: var(--bg-secondary-dark);
+}
+
+.dark-theme .pos-categories {
+    background: var(--bg-secondary-dark);
+    border-color: var(--border-color-dark);
+}
+
+.dark-theme .pos-cart {
+    background: var(--bg-secondary-dark);
+    border-color: var(--border-color-dark);
+}
+
+.dark-theme .cart-modal {
+    background: var(--bg-primary-dark);
+}
+
+.dark-theme .cart-modal-content {
+    background: var(--bg-secondary-dark);
+    border-color: var(--border-color-dark);
+}
+
+.dark-theme .cart-items {
+    background: var(--bg-accent-dark);
+}
+
+.dark-theme .cart-item {
+    border-color: var(--border-color-dark);
+    background: var(--bg-secondary-dark);
+}
+
+.dark-theme .cart-totals {
+    border-color: var(--border-color-dark);
+}
+
+/* Update text colors in dark theme */
+.dark-theme .cashier-info {
+    color: var(--text-secondary-dark);
+}
+
+.dark-theme .cart-item-name,
+.dark-theme .cart-item-price,
+.dark-theme .cart-totals-row {
+    color: var(--text-primary-dark);
+}
+
+/* Update input fields in dark theme */
+.dark-theme input[type="text"],
+.dark-theme input[type="number"],
+.dark-theme select {
+    background: var(--bg-accent-dark);
+    border-color: var(--border-color-dark);
+    color: var(--text-primary-dark);
+}
+
+/* Update modal styles for dark theme */
+.dark-theme .payment-modal {
+    background: var(--bg-primary-dark);
+}
+
+.dark-theme .payment-modal-content {
+    background: var(--bg-secondary-dark);
+    border-color: var(--border-color-dark);
+}
+
+/* Add subtle separator between categories */
+.category-item:not(:last-child) {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Style the search input in header */
+.pos-search input {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+    border-radius: 6px;
+    padding: 8px 15px;
+    padding-left: 40px;
+}
+
+.pos-search input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.search-icon {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* Style the user info and buttons */
+.pos-user-info {
+    color: #ffffff;
+}
+
+.theme-toggle-button,
+.sync-button {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+}
+
+.theme-toggle-button:hover,
+.sync-button:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+}
+
+.logout-button {
+    background: #e74c3c !important;
+    color: #ffffff !important;
+    border: none !important;
+}
+
+.logout-button:hover {
+    background: #c0392b !important;
+}
+
+/* Dark theme adjustments */
+.dark-theme .pos-header {
+    background: #1a2634 !important;
+}
+
+.dark-theme .pos-search input {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark-theme .theme-toggle-button,
+.dark-theme .sync-button {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark-theme .theme-toggle-button:hover,
+.dark-theme .sync-button:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Search field and suggestions styling */
+.pos-search {
+    position: relative;
+    min-width: 300px;
+}
+
+.pos-search input {
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+    border-radius: 25px;
+    padding: 10px 20px;
+    padding-left: 45px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+/* Search suggestions container */
+.search-suggestions {
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    display: none; /* Hidden by default */
+}
+
+/* Show suggestions when active */
+.search-suggestions.active {
+    display: block;
+}
+
+/* Individual suggestion item */
+.search-suggestion-item {
+    padding: 10px 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+}
+
+.search-suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.search-suggestion-item:hover {
+    background-color: #f5f5f5;
+}
+
+/* Search notice/message */
+.search-notice {
+    padding: 12px 15px;
+    color: #666;
+    font-size: 13px;
+    text-align: center;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Loading state */
+.search-loading {
+    padding: 15px;
+    text-align: center;
+    color: #666;
+}
+
+.search-loading::after {
+    content: "...";
+    animation: loading 1.5s infinite;
+}
+
+/* Dark theme adjustments */
+.dark-theme .search-suggestions {
+    background: #2c3e50;
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-theme .search-suggestion-item {
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+.dark-theme .search-suggestion-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-theme .search-notice {
+    color: rgba(255, 255, 255, 0.7);
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-theme .search-loading {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+@keyframes loading {
+    0% { content: "."; }
+    33% { content: ".."; }
+    66% { content: "..."; }
 }

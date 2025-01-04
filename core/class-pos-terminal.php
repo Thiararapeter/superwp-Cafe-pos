@@ -90,6 +90,9 @@ class Superwp_Cafe_Pos_Terminal {
                     <div class="search-suggestions"></div>
                 </div>
                 <div class="pos-header-actions">
+                    <button class="theme-toggle" id="theme-toggle" title="Toggle theme">
+                        <i class="fas fa-moon"></i>
+                    </button>
                     <div class="cashier-info">
                         <?php 
                         $user = wp_get_current_user();

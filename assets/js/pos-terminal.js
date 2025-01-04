@@ -611,4 +611,33 @@ jQuery(document).ready(function($) {
 
     // Initialize POS
     POS.init();
+
+    // Theme Toggle functionality
+    $(document).ready(function() {
+        const themeToggle = $('#theme-toggle');
+        const container = $('.pos-container');
+        
+        // Check for saved theme preference
+        const savedTheme = localStorage.getItem('pos-theme');
+        if (savedTheme === 'dark') {
+            container.addClass('dark-theme');
+            themeToggle.find('i').removeClass('fa-moon').addClass('fa-sun');
+        }
+        
+        // Handle theme toggle
+        themeToggle.on('click', function() {
+            container.toggleClass('dark-theme');
+            const isDark = container.hasClass('dark-theme');
+            
+            // Update icon
+            const icon = $(this).find('i');
+            if (isDark) {
+                icon.removeClass('fa-moon').addClass('fa-sun');
+                localStorage.setItem('pos-theme', 'dark');
+            } else {
+                icon.removeClass('fa-sun').addClass('fa-moon');
+                localStorage.setItem('pos-theme', 'light');
+            }
+        });
+    });
 });
