@@ -5,6 +5,7 @@ jQuery(document).ready(function($) {
             this.loadProducts();
             this.bindEvents();
             this.initCart();
+            this.initFullscreen();
         },
 
         bindEvents: function() {
@@ -273,7 +274,13 @@ jQuery(document).ready(function($) {
             });
         },
 
-        processPayment: function(paymentData) {
+        processPayment: function() {
+            const paymentMethod = $('input[name="payment_method"]:checked').val();
+            const paymentData = {
+                payment_method: paymentMethod,
+                payment_details: this.getPaymentDetails(paymentMethod)
+            };
+
             $.ajax({
                 url: superwpcafPOS.ajaxurl,
                 type: 'POST',
@@ -605,39 +612,186 @@ jQuery(document).ready(function($) {
                 // Validate fields after switching
                 this.validatePaymentFields();
             }.bind(this));
+
+            // Handle payment method selection
+            $(document).on('change', 'input[name="payment_method"]', function() {
+                const method = $(this).val();
+                self.loadPaymentFields(method);
+            });
         },
 
         validatePaymentFields: function() {
             const method = $('input[name="payment_method"]:checked').val();
-            const total = parseFloat($('.modal-cart-total').text().replace(/[^0-9.-]+/g, ''));
-            const waiterId = $('#waiter-select').val();
-            let isValid = false;
+            const total = parseFloat($('.cart-total-section .total').text().replace(/[^0-9.-]+/g, ''));
+            let isValid = true;
+            let buttonText = 'Complete Payment';
 
-            // Check if waiter selection is available and selected
-            const $waiterSelect = $('#waiter-select');
-            if ($waiterSelect.find('option').length <= 1) {
-                // No waiters available
-                $('.checkout-button').prop('disabled', true)
-                    .text('No POS Waiters Available');
-                return;
+            if (method === 'cod') {
+                const cashAmount = parseFloat($('#cash-amount').val()) || 0;
+                isValid = cashAmount >= total;
+                
+                if (!isValid) {
+                    buttonText = 'Insufficient Amount';
+                } else {
+                    const change = (cashAmount - total).toFixed(2);
+                    buttonText = `Complete Payment (Change: ${get_woocommerce_currency_symbol()}${change})`;
+                }
             }
 
-            // Check if waiter is selected
-            if (!waiterId) {
-                $('.checkout-button').prop('disabled', true);
-                return;
-            }
+            $('.checkout-button')
+                .prop('disabled', !isValid)
+                .text(buttonText);
+        },
 
-            if (method === 'cash') {
-                const amount = parseFloat($('#cash-amount').val()) || 0;
-                isValid = amount >= total;
-            } else if (method === 'mpesa') {
-                const code = $('#mpesa-code').val();
-                isValid = /^[A-Z]{3}[0-9]{6,10}$/.test(code);
-            }
+        loadPaymentFields: function(paymentMethod) {
+            $.ajax({
+                url: superwpcafPOS.ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'superwpcaf_get_payment_fields',
+                    payment_method: paymentMethod,
+                    nonce: superwpcafPOS.nonce
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('.payment-fields-container').html(response.data.fields);
+                        
+                        // Show cash fields if cash payment is selected
+                        if (paymentMethod === 'cod') {
+                            $('.cash-payment-fields').show();
+                            this.initCashCalculator();
+                        } else {
+                            $('.cash-payment-fields').hide();
+                        }
+                        
+                        this.validatePaymentFields();
+                    }
+                }.bind(this)
+            });
+        },
 
-            $('.checkout-button').prop('disabled', !isValid)
-                .text(isValid ? 'Complete Payment' : 'Complete Required Fields');
+        // Add new method for cash calculator
+        initCashCalculator: function() {
+            const self = this;
+            
+            $('#cash-amount').on('input', function() {
+                const cashAmount = parseFloat($(this).val()) || 0;
+                const total = parseFloat($('.cart-total-section .total').text().replace(/[^0-9.-]+/g, ''));
+                const change = (cashAmount - total).toFixed(2);
+                
+                // Update change amount display
+                $('.change-value span').text(change >= 0 ? change : '0.00');
+                
+                // Validate and update button state
+                self.validatePaymentFields();
+                
+                // Add visual feedback
+                if (cashAmount >= total) {
+                    $('.change-value').addClass('positive-change');
+                } else {
+                    $('.change-value').removeClass('positive-change');
+                }
+            });
+
+            // Focus the input when cash payment is selected
+            $('#cash-amount').focus();
+        },
+
+        getPaymentDetails: function(paymentMethod) {
+            const details = {};
+            
+            if (paymentMethod === 'cod') {
+                const cashAmount = parseFloat($('#cash-amount').val()) || 0;
+                const total = parseFloat($('.modal-cart-total').text().replace(/[^0-9.-]+/g, ''));
+                const change = (cashAmount - total).toFixed(2);
+                
+                details.cash_amount = cashAmount;
+                details.change_amount = change;
+            }
+            
+            // Get other payment fields
+            $(`.payment-fields-container [data-payment-field="${paymentMethod}"]`).each(function() {
+                details[$(this).attr('name')] = $(this).val();
+            });
+            
+            return details;
+        },
+
+        initFullscreen: function() {
+            const self = this;
+            const fullscreenBtn = document.getElementById('fullscreen-toggle');
+            if (!fullscreenBtn) return;
+
+            // Store button elements for reuse
+            const icon = fullscreenBtn.querySelector('i');
+            const label = fullscreenBtn.querySelector('.control-label');
+
+            // Function to update button state
+            const updateButtonState = function(isFullscreen) {
+                if (isFullscreen) {
+                    icon.classList.remove('fa-expand');
+                    icon.classList.add('fa-compress');
+                    label.textContent = 'Exit Fullscreen';
+                } else {
+                    icon.classList.remove('fa-compress');
+                    icon.classList.add('fa-expand');
+                    label.textContent = 'Fullscreen';
+                }
+            };
+
+            fullscreenBtn.addEventListener('click', function() {
+                const elem = document.documentElement;
+
+                if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                    // Enter fullscreen
+                    if (elem.requestFullscreen) {
+                        elem.requestFullscreen();
+                    } else if (elem.webkitRequestFullscreen) {
+                        elem.webkitRequestFullscreen();
+                    }
+                } else {
+                    // Exit fullscreen
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    } else if (document.webkitExitFullscreen) {
+                        document.webkitExitFullscreen();
+                    }
+                }
+            });
+
+            // Handle fullscreen change events
+            const handleFullscreenChange = function() {
+                const isFullscreen = Boolean(document.fullscreenElement || document.webkitFullscreenElement);
+                const posContainer = document.querySelector('.pos-container');
+                
+                updateButtonState(isFullscreen);
+                
+                if (isFullscreen) {
+                    posContainer.classList.add('is-fullscreen');
+                } else {
+                    posContainer.classList.remove('is-fullscreen');
+                }
+            };
+
+            // Listen for fullscreen changes
+            document.addEventListener('fullscreenchange', handleFullscreenChange);
+            document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+            
+            // Listen for ESC key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && (document.fullscreenElement || document.webkitFullscreenElement)) {
+                    updateButtonState(false);
+                }
+            });
+        },
+
+        handleFullscreenChange: function() {
+            const posContainer = document.querySelector('.pos-container');
+            if (document.fullscreenElement || document.webkitFullscreenElement) {
+                posContainer.classList.add('is-fullscreen');
+            } else {
+                posContainer.classList.remove('is-fullscreen');
+            }
         }
     };
 

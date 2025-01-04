@@ -116,7 +116,7 @@
 /* Payment Method Selector */
 .payment-method-selector {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 10px;
     margin: 15px 0;
 }
@@ -124,9 +124,7 @@
 .payment-method-selector label {
     display: flex;
     align-items: center;
-    gap: 8px;
     padding: 12px;
-    background: #fff;
     border: 2px solid var(--border-color-light, #ddd);
     border-radius: 6px;
     cursor: pointer;
@@ -141,6 +139,10 @@
     display: none;
 }
 
+.payment-method-selector input[type="radio"]:checked + .payment-label {
+    color: var(--accent-color, #2271b1);
+}
+
 .payment-label {
     display: flex;
     align-items: center;
@@ -150,6 +152,13 @@
 
 .payment-label i {
     font-size: 18px;
+}
+
+.payment-fields-container {
+    margin: 15px 0;
+    padding: 15px;
+    background: var(--bg-secondary-light, #f8f9fa);
+    border-radius: 6px;
 }
 
 /* Amount Fields */
@@ -273,4 +282,217 @@
 
 .cart-modal.active {
     transform: translateX(0);
+}
+
+/* Cash Payment Fields */
+.cash-payment-fields {
+    background: var(--bg-secondary-light, #f8f9fa);
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.cash-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.currency-symbol {
+    position: absolute;
+    left: 12px;
+    font-size: 16px;
+    color: var(--text-secondary-light, #666);
+}
+
+.cash-amount-input {
+    width: 100%;
+    padding: 12px 15px 12px 30px;
+    border: 2px solid var(--border-color-light, #ddd);
+    border-radius: 6px;
+    font-size: 18px;
+    font-weight: 500;
+    transition: border-color 0.2s ease;
+    background: var(--bg-primary-light, #fff);
+}
+
+.cash-amount-input:focus {
+    outline: none;
+    border-color: var(--accent-color, #2271b1);
+}
+
+.change-amount {
+    margin-top: 15px;
+    background: var(--bg-primary-light, #fff);
+    padding: 15px;
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 16px;
+    border: 1px solid var(--border-color-light, #ddd);
+}
+
+.change-label {
+    color: var(--text-secondary-light, #666);
+    font-weight: 500;
+}
+
+.change-value {
+    font-weight: 600;
+    color: var(--accent-color, #2271b1);
+    font-size: 18px;
+}
+
+/* Dark theme adjustments */
+.dark-theme .cash-payment-fields {
+    background: var(--bg-secondary-dark, #2c3e50);
+}
+
+.dark-theme .cash-amount-input {
+    background: var(--bg-primary-dark, #1a2634);
+    border-color: var(--border-color-dark, #34495e);
+    color: var(--text-primary-dark, #fff);
+}
+
+.dark-theme .currency-symbol {
+    color: var(--text-secondary-dark, #95a5a6);
+}
+
+.dark-theme .change-amount {
+    background: var(--bg-primary-dark, #1a2634);
+    border-color: var(--border-color-dark, #34495e);
+}
+
+.dark-theme .change-label {
+    color: var(--text-secondary-dark, #95a5a6);
+}
+
+.dark-theme .change-value {
+    color: var(--accent-color-dark, #3498db);
+}
+
+/* POS Header and Controls */
+.pos-header {
+    background: var(--bg-primary-light, #fff);
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--border-color-light, #ddd);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pos-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.pos-control-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border: 1px solid var(--border-color-light, #ddd);
+    border-radius: 4px;
+    background: var(--bg-primary-light, #fff);
+    color: var(--text-primary-light, #333);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.pos-control-button:hover {
+    background: var(--bg-secondary-light, #f8f9fa);
+    border-color: var(--accent-color, #2271b1);
+}
+
+.pos-control-button i {
+    font-size: 16px;
+}
+
+/* Fullscreen styles */
+.pos-container.is-fullscreen {
+    background: var(--bg-primary-light, #fff);
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.pos-container.is-fullscreen .pos-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    padding: 15px 30px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.pos-container.is-fullscreen .pos-main {
+    margin-top: 80px;
+    height: calc(100vh - 80px);
+    padding: 20px 30px;
+    overflow-y: auto;
+}
+
+/* Adjust product grid in fullscreen */
+.pos-container.is-fullscreen .products-grid {
+    padding: 20px;
+    gap: 25px;
+}
+
+/* Adjust categories in fullscreen */
+.pos-container.is-fullscreen .pos-categories {
+    padding: 15px 0;
+    margin-bottom: 25px;
+}
+
+/* Adjust search bar in fullscreen */
+.pos-container.is-fullscreen .pos-search {
+    min-width: 300px;
+    margin: 0 20px;
+}
+
+/* Adjust floating cart in fullscreen */
+.pos-container.is-fullscreen .floating-cart {
+    bottom: 30px;
+    right: 30px;
+    padding: 15px 30px;
+}
+
+/* Cart modal adjustments in fullscreen */
+.pos-container.is-fullscreen .cart-modal {
+    width: 450px;
+}
+
+/* Dark theme specific adjustments */
+.dark-theme.pos-container.is-fullscreen {
+    background: var(--bg-primary-dark, #1a2634);
+}
+
+.dark-theme.pos-container.is-fullscreen .pos-header {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Hide WP Admin Bar in fullscreen */
+.pos-container.is-fullscreen #wpadminbar,
+.pos-container.is-fullscreen .admin-bar {
+    display: none !important;
+}
+
+/* Hide scrollbars in fullscreen */
+.pos-container.is-fullscreen {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+}
+
+.pos-container.is-fullscreen::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
 } 

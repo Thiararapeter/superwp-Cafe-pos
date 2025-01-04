@@ -47,6 +47,9 @@ class Superwp_Cafe_Pos_Terminal {
         
         // Add sync products handler
         add_action('wp_ajax_superwpcaf_sync_products', array($this, 'sync_products'));
+        
+        // Add new AJAX handler for payment fields
+        add_action('wp_ajax_superwpcaf_get_payment_fields', array($this, 'get_payment_fields'));
     }
 
     public function remove_pos_page_title($title, $id = null) {
@@ -69,6 +72,15 @@ class Superwp_Cafe_Pos_Terminal {
 
     public function enqueue_pos_assets() {
         if (is_page('pos-terminal')) {
+            // Add viewport meta tag
+            add_action('wp_head', function() {
+                ?>
+                <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+                <meta name="apple-mobile-web-app-capable" content="yes">
+                <meta name="mobile-web-app-capable" content="yes">
+                <?php
+            });
+            
             wp_enqueue_style('font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
             wp_enqueue_style('superwpcaf-pos-style', plugins_url('assets/css/pos-terminal.css', dirname(__FILE__)));
             wp_enqueue_script('superwpcaf-pos-script', plugins_url('assets/js/pos-terminal.js', dirname(__FILE__)), array('jquery'), '1.0.0', true);
@@ -89,6 +101,13 @@ class Superwp_Cafe_Pos_Terminal {
         ?>
         <div class="pos-container">
             <div class="pos-header">
+                <div class="pos-controls">
+                    <button id="fullscreen-toggle" class="pos-control-button">
+                        <i class="fas fa-expand"></i>
+                        <span class="control-label"><?php _e('Fullscreen', 'superwp-cafe-pos'); ?></span>
+                    </button>
+                    <!-- Other controls... -->
+                </div>
                 <h2><?php _e('POS Terminal', 'superwp-cafe-pos'); ?></h2>
                 <div class="pos-search">
                     <input type="text" id="product-search" placeholder="Search products...">
@@ -147,47 +166,49 @@ class Superwp_Cafe_Pos_Terminal {
                         <?php echo $this->render_waiter_selection(); ?>
                         
                         <div class="payment-method-selector">
-                            <label>
-                                <input type="radio" name="payment_method" value="cash" checked>
-                                <span class="payment-label">
-                                    <i class="fas fa-money-bill-wave"></i> Cash
-                                </span>
-                            </label>
-                            <label>
-                                <input type="radio" name="payment_method" value="mpesa">
-                                <span class="payment-label">
-                                    <i class="fas fa-mobile-alt"></i> M-PESA
-                                </span>
-                            </label>
+                            <?php
+                            $available_gateways = WC()->payment_gateways->get_available_payment_gateways();
+                            
+                            foreach ($available_gateways as $gateway) {
+                                if ($gateway->enabled === 'yes') {
+                                    ?>
+                                    <label>
+                                        <input type="radio" name="payment_method" value="<?php echo esc_attr($gateway->id); ?>">
+                                        <div class="payment-label">
+                                            <i class="<?php echo esc_attr($this->get_payment_icon($gateway->id)); ?>"></i>
+                                            <?php echo esc_html($gateway->get_title()); ?>
+                                        </div>
+                                    </label>
+                                    <?php
+                                }
+                            }
+                            ?>
                         </div>
                         
-                        <!-- Cash payment fields -->
-                        <div class="payment-fields cash-fields">
-                            <div class="amount-field">
-                                <label>Amount Received</label>
-                                <input type="number" id="cash-amount" step="0.01" min="0">
-                            </div>
-                            <div class="change-amount">
-                                Change: <span>0.00</span>
-                            </div>
-                </div>
-                
-                        <!-- MPESA payment fields -->
-                        <div class="payment-fields mpesa-fields" style="display: none;">
-                            <div class="mpesa-field">
-                                <label>M-PESA Transaction Code</label>
-                                <input type="text" 
-                                       id="mpesa-code" 
-                                       placeholder="e.g., PXL123456789" 
-                                       maxlength="12" 
-                                       autocomplete="off">
-                                <div class="help-text">
-                                    Enter the M-PESA transaction code you received via SMS
+                        <!-- Add dynamic payment fields container -->
+                        <div class="payment-fields-container">
+                            <div class="cash-payment-fields" style="display: none;">
+                                <div class="amount-field">
+                                    <label for="cash-amount"><?php _e('Cash Given', 'superwp-cafe-pos'); ?></label>
+                                    <div class="cash-input-wrapper">
+                                        <span class="currency-symbol"><?php echo get_woocommerce_currency_symbol(); ?></span>
+                                        <input type="number" 
+                                               id="cash-amount" 
+                                               class="cash-amount-input" 
+                                               step="0.01" 
+                                               min="0" 
+                                               placeholder="0.00"
+                                               data-payment-field="cash">
+                                    </div>
                                 </div>
+                                <div class="change-amount">
+                                    <span class="change-label"><?php _e('Change Due:', 'superwp-cafe-pos'); ?></span>
+                                    <span class="change-value"><?php echo get_woocommerce_currency_symbol(); ?><span>0.00</span></span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    </div>
-                    </div>
-
+                    
                     <div class="cart-total-section">
                         <strong><?php _e('Total:', 'superwp-cafe-pos'); ?></strong>
                         <span class="modal-cart-total"><?php echo wc_price(0); ?></span>
@@ -440,25 +461,59 @@ class Superwp_Cafe_Pos_Terminal {
      */
     public function process_sale() {
         check_ajax_referer('superwpcaf_pos_nonce', 'nonce');
-
-        $payment_data = isset($_POST['payment_data']) ? $_POST['payment_data'] : array();
-        $waiter_id = isset($payment_data['waiter_id']) ? absint($payment_data['waiter_id']) : 0;
-
-        // Validate waiter
-        if (!$waiter_id || !get_userdata($waiter_id)) {
-            wp_send_json_error(array('message' => __('Please select a valid waiter', 'superwp-cafe-pos')));
-            return;
-        }
-
-        // Create order
-        $order = wc_create_order();
         
-        // Add waiter information to order
-        $order->update_meta_data('_waiter_id', $waiter_id);
-        $waiter = get_userdata($waiter_id);
-        $order->update_meta_data('_waiter_name', $waiter->display_name);
-
-        // Rest of your existing order processing code...
+        $payment_data = isset($_POST['payment_data']) ? $_POST['payment_data'] : array();
+        $payment_method = isset($payment_data['payment_method']) ? sanitize_text_field($payment_data['payment_method']) : '';
+        
+        try {
+            // Get the payment gateway
+            $available_gateways = WC()->payment_gateways->get_available_payment_gateways();
+            $gateway = isset($available_gateways[$payment_method]) ? $available_gateways[$payment_method] : null;
+            
+            if (!$gateway) {
+                throw new Exception('Invalid payment method');
+            }
+            
+            // Create the order
+            $order = wc_create_order();
+            
+            // Add cart items to order
+            foreach (WC()->cart->get_cart() as $cart_item_key => $cart_item) {
+                $order->add_product(
+                    $cart_item['data'],
+                    $cart_item['quantity']
+                );
+            }
+            
+            // Calculate totals
+            $order->calculate_totals();
+            
+            // Add cash payment details if applicable
+            if ($payment_method === 'cod' && isset($payment_data['payment_details'])) {
+                $cash_details = $payment_data['payment_details'];
+                $order->update_meta_data('_cash_amount', floatval($cash_details['cash_amount']));
+                $order->update_meta_data('_change_amount', floatval($cash_details['change_amount']));
+            }
+            
+            // Process payment
+            $result = $gateway->process_payment($order->get_id());
+            
+            if ($result['result'] === 'success') {
+                WC()->cart->empty_cart();
+                wp_send_json_success(array(
+                    'order_id' => $order->get_id(),
+                    'redirect' => $result['redirect'],
+                    'payment_details' => $payment_data['payment_details'] ?? null
+                ));
+            } else {
+                throw new Exception('Payment processing failed');
+            }
+            
+        } catch (Exception $e) {
+            wp_send_json_error(array(
+                'message' => $e->getMessage()
+            ));
+        }
     }
 
     /**
@@ -818,6 +873,39 @@ class Superwp_Cafe_Pos_Terminal {
                 'message' => $e->getMessage()
             ));
         }
+    }
+
+    // Add helper method for payment icons
+    private function get_payment_icon($gateway_id) {
+        $icons = array(
+            'cod' => 'fas fa-money-bill-wave',
+            'bacs' => 'fas fa-university',
+            'cheque' => 'fas fa-money-check',
+            'paypal' => 'fab fa-paypal',
+            'stripe' => 'fab fa-cc-stripe',
+            'mpesa' => 'fas fa-mobile-alt',
+        );
+        
+        return isset($icons[$gateway_id]) ? $icons[$gateway_id] : 'fas fa-credit-card';
+    }
+
+    public function get_payment_fields() {
+        check_ajax_referer('superwpcaf_pos_nonce', 'nonce');
+        
+        $payment_method = isset($_POST['payment_method']) ? sanitize_text_field($_POST['payment_method']) : '';
+        $gateway = WC()->payment_gateways()->get_available_payment_gateways()[$payment_method] ?? null;
+        
+        if (!$gateway) {
+            wp_send_json_error(array('message' => 'Invalid payment method'));
+        }
+        
+        ob_start();
+        $gateway->payment_fields();
+        $fields = ob_get_clean();
+        
+        wp_send_json_success(array(
+            'fields' => $fields
+        ));
     }
 }
 
