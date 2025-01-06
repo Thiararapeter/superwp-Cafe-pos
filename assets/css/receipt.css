@@ -153,4 +153,78 @@
     text-align: center;
     z-index: 100;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Print-friendly styles */
+.print-friendly {
+    background: white;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    max-width: 80mm; /* Standard thermal receipt width */
+    margin: 0 auto;
+}
+
+@media print {
+    @page {
+        size: 80mm auto;
+        margin: 0;
+    }
+
+    .print-friendly {
+        box-shadow: none;
+        padding: 0;
+        margin: 0;
+        width: 80mm !important;
+        max-width: 80mm !important;
+    }
+
+    /* Add cut marks for thermal printers */
+    .print-friendly::after {
+        content: "\n\n\n\n";
+        display: block;
+        text-align: center;
+        border-bottom: 1px dashed #000;
+    }
+    
+    /* Hide non-essential elements when printing */
+    .no-print {
+        display: none !important;
+    }
+
+    /* Force black text on white background */
+    .print-friendly,
+    .print-friendly * {
+        background-color: white !important;
+        color: black !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    /* Ensure all content is visible */
+    .print-friendly {
+        position: relative !important;
+        overflow: visible !important;
+    }
+}
+
+/* Update column widths when SKU and discount are shown */
+.receipt-items.show-sku th:nth-child(1),
+.receipt-items.show-sku td:nth-child(1) {
+    width: 30%; /* Item name */
+}
+
+.receipt-items.show-sku th:nth-child(2),
+.receipt-items.show-sku td:nth-child(2) {
+    width: 15%; /* SKU */
+}
+
+.receipt-items.show-discount .discount {
+    width: 15%;
+    text-align: right;
+}
+
+/* Adjust other column widths accordingly */
+.receipt-items.show-sku.show-discount th:nth-child(1),
+.receipt-items.show-sku.show-discount td:nth-child(1) {
+    width: 25%; /* Item name */
 } 
