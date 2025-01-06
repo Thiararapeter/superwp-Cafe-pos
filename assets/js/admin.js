@@ -1,48 +1,4 @@
 jQuery(document).ready(function($) {
-    // Media Library Selector
-    let file_frame;
-    
-    $('#select_pos_logo').on('click', function(e) {
-        e.preventDefault();
-        
-        // If frame exists, reopen it
-        if (file_frame) {
-            file_frame.open();
-            return;
-        }
-        
-        // Create the media frame
-        file_frame = wp.media({
-            title: 'Select POS Logo',
-            button: {
-                text: 'Use this logo'
-            },
-            multiple: false,
-            library: {
-                type: 'image'
-            }
-        });
-
-        // When an image is selected
-        file_frame.on('select', function() {
-            const attachment = file_frame.state().get('selection').first().toJSON();
-            
-            // Update hidden input with image URL
-            $('#pos_logo_url').val(attachment.url);
-            
-            // Update image preview
-            $('#pos_logo_preview').attr('src', attachment.url);
-            
-            // Show remove button
-            $('#remove_pos_logo').removeClass('hidden');
-            
-            // Submit the form to save changes
-            $('form#pos-settings-form').submit();
-        });
-
-        file_frame.open();
-    });
-
     // Remove Logo
     $('#remove_pos_logo').on('click', function(e) {
         e.preventDefault();

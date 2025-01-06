@@ -83,41 +83,32 @@ class Superwp_Cafe_Pos_Run{
 	 * @return	void
 	 */
 	public function add_admin_bar_menu_items( $admin_bar ) {
-
-		$admin_bar->add_menu( array(
-			'id'		=> 'superwp-cafe-pos-id', // The ID of the node.
-			'title'		=> __( 'SupwerWP POS', 'superwp-cafe-pos' ), // The text that will be visible in the Toolbar. Including html tags is allowed.
-			'parent'	=> false, // The ID of the parent node.
-			'href'		=> '#', // The ‘href’ attribute for the link. If ‘href’ is not set the node will be a text node.
-			'group'		=> false, // This will make the node a group (node) if set to ‘true’. Group nodes are not visible in the Toolbar, but nodes added to it are.
-			'meta'		=> array(
-				'title'		=> __( 'SupwerWP POS', 'superwp-cafe-pos' ), // The title attribute. Will be set to the link or to a div containing a text node.
-				'target'	=> '_blank', // The target attribute for the link. This will only be set if the ‘href’ argument is present.
-				'class'		=> 'superwp-cafe-pos-class', // The class attribute for the list item containing the link or text node.
-				'html'		=> false, // The html used for the node.
-				'rel'		=> false, // The rel attribute.
-				'onclick'	=> false, // The onclick attribute for the link. This will only be set if the ‘href’ argument is present.
-				'tabindex'	=> false, // The tabindex attribute. Will be set to the link or to a div containing a text node.
-			),
+		// Add the main menu item
+		$admin_bar->add_menu(array(
+			'id'    => 'superwp-cafe-pos',
+			'title' => __('SuperWP POS', 'superwp-cafe-pos'),
+			'href'  => admin_url('admin.php?page=superwp-cafe-pos-settings'),
 		));
 
-		$admin_bar->add_menu( array(
-			'id'		=> 'superwp-cafe-pos-sub-id',
-			'title'		=> __( 'POS', 'superwp-cafe-pos' ),
-			'parent'	=> 'superwp-cafe-pos-id',
-			'href'		=> '#',
-			'group'		=> false,
-			'meta'		=> array(
-				'title'		=> __( 'POS', 'superwp-cafe-pos' ),
-				'target'	=> '_blank',
-				'class'		=> 'superwp-cafe-pos-sub-class',
-				'html'		=> false,    
-				'rel'		=> false,
-				'onclick'	=> false,
-				'tabindex'	=> false,
-			),
+		// Add Open POS submenu (renamed from POS Terminal)
+		$admin_bar->add_menu(array(
+			'id'     => 'superwp-cafe-pos-terminal',
+			'parent' => 'superwp-cafe-pos',
+			'title'  => __('Open POS', 'superwp-cafe-pos'),
+			'href'   => home_url('/pos-terminal/'),
+			'meta'   => array(
+				'target' => '_blank',
+				'class'  => 'superwp-cafe-pos-terminal'
+			)
 		));
 
+		// Add Settings submenu
+		$admin_bar->add_menu(array(
+			'id'     => 'superwp-cafe-pos-settings',
+			'parent' => 'superwp-cafe-pos',
+			'title'  => __('POS Settings', 'superwp-cafe-pos'),
+			'href'   => admin_url('admin.php?page=superwp-cafe-pos-settings'),
+		));
 	}
 
 }

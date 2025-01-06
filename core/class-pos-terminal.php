@@ -131,6 +131,12 @@ class Superwp_Cafe_Pos_Terminal {
                     <button class="theme-toggle" id="theme-toggle" title="Toggle theme">
                         <i class="fas fa-moon"></i>
                     </button>
+                    <?php if (current_user_can('manage_options')): ?>
+                    <a href="<?php echo admin_url(); ?>" class="admin-button" title="<?php _e('WP Admin', 'superwp-cafe-pos'); ?>" target="_blank">
+                        <i class="fas fa-cog"></i>
+                        <span><?php _e('WP Admin', 'superwp-cafe-pos'); ?></span>
+                    </a>
+                    <?php endif; ?>
                     <div class="cashier-info">
                         <?php 
                         $user = wp_get_current_user();
@@ -751,21 +757,6 @@ class Superwp_Cafe_Pos_Terminal {
 
     public function register_pos_settings() {
         register_setting('superwpcaf_pos_settings', 'superwpcaf_pos_logo');
-        
-        add_settings_section(
-            'superwpcaf_pos_branding',
-            __('POS Branding', 'superwp-cafe-pos'),
-            null,
-            'superwpcaf-pos-settings'
-        );
-        
-        add_settings_field(
-            'superwpcaf_pos_logo',
-            __('POS Login Logo', 'superwp-cafe-pos'),
-            array($this, 'pos_logo_field'),
-            'superwpcaf-pos-settings',
-            'superwpcaf_pos_branding'
-        );
     }
 
     public function pos_logo_field() {
@@ -791,7 +782,9 @@ class Superwp_Cafe_Pos_Terminal {
                     <?php _e('Select from Media Library', 'superwp-cafe-pos'); ?>
                 </button>
                 
-                <button type="button" class="button <?php echo empty($logo_url) ? 'hidden' : ''; ?>" id="remove_pos_logo">
+                <button type="button" class="button <?php echo empty($logo_url) ? 'hidden' : ''; ?>" 
+                        id="remove_pos_logo" 
+                        data-default-logo="<?php echo esc_url($default_logo); ?>">
                     <i class="dashicons dashicons-trash"></i>
                     <?php _e('Remove Logo', 'superwp-cafe-pos'); ?>
                 </button>
@@ -966,6 +959,101 @@ class Superwp_Cafe_Pos_Terminal {
         wp_send_json_success([
             'html' => $html
         ]);
+    }
+
+    private function get_pos_settings() {
+        $wc_settings = array(
+            'currency' => get_woocommerce_currency(),
+            'currency_position' => get_option('woocommerce_currency_pos'),
+            'tax_enabled' => wc_tax_enabled(),
+            'tax_rates' => WC_Tax::get_rates(),
+            'manage_stock' => get_option('woocommerce_manage_stock'),
+            'low_stock_amount' => get_option('woocommerce_notify_low_stock_amount')
+        );
+        
+        $pos_options = get_option('superwp_cafe_pos_options', array());
+        
+        // Only include receipt settings
+        $filtered_options = array_intersect_key($pos_options, array_flip(['receipt_header', 'receipt_footer', 'receipt_logo']));
+        
+        return array_merge($wc_settings, $filtered_options);
+    }
+
+    public function enqueue_pos_scripts() {
+        wp_enqueue_script('superwpcaf-pos-terminal', SUPERWPCAF_PLUGIN_URL . 'assets/js/pos-terminal.js', array('jquery'), SUPERWPCAF_VERSION, true);
+        
+        wp_localize_script('superwpcaf-pos-terminal', 'superwpcafPOS', array(
+            'ajaxurl' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('superwpcaf_pos_nonce'),
+            'currency_symbol' => get_woocommerce_currency_symbol(),
+            'decimal_separator' => wc_get_price_decimal_separator(),
+            'thousand_separator' => wc_get_price_thousand_separator(),
+            'decimals' => wc_get_price_decimals(),
+            'i18n' => array(
+                'add_to_cart' => __('Add to Cart', 'superwp-cafe-pos'),
+                'added_to_cart' => __('Added to Cart', 'superwp-cafe-pos'),
+                'error_adding' => __('Error adding to cart', 'superwp-cafe-pos')
+            )
+        ));
+    }
+
+    public function render_product_item($product) {
+        ?>
+        <div class="product-item" data-product-id="<?php echo esc_attr($product->get_id()); ?>">
+            <div class="product-image">
+                <?php echo $product->get_image('thumbnail'); ?>
+            </div>
+            <div class="product-details">
+                <h4 class="product-name"><?php echo esc_html($product->get_name()); ?></h4>
+                <div class="product-price"><?php echo wc_price($product->get_price()); ?></div>
+                <button type="button" class="add-to-cart-btn button">
+                    <span class="dashicons dashicons-plus"></span>
+                    <?php _e('Add', 'superwp-cafe-pos'); ?>
+                </button>
+            </div>
+        </div>
+        <?php
+    }
+
+    public function add_ajax_handlers() {
+        add_action('wp_ajax_superwpcaf_add_to_cart', array($this, 'ajax_add_to_cart'));
+    }
+
+    public function ajax_add_to_cart() {
+        check_ajax_referer('superwpcaf_pos_nonce', 'nonce');
+        
+        $product_id = isset($_POST['product_id']) ? absint($_POST['product_id']) : 0;
+        
+        if (!$product_id) {
+            wp_send_json_error(array('message' => __('Invalid product', 'superwp-cafe-pos')));
+        }
+        
+        // Add to cart
+        $added = WC()->cart->add_to_cart($product_id, 1);
+        
+        if ($added) {
+            // Get updated cart data
+            $cart_data = array(
+                'items' => array(),
+                'subtotal' => WC()->cart->get_subtotal(),
+                'tax' => WC()->cart->get_tax_total(),
+                'total' => WC()->cart->get_total()
+            );
+            
+            foreach (WC()->cart->get_cart() as $cart_item_key => $cart_item) {
+                $product = $cart_item['data'];
+                $cart_data['items'][] = array(
+                    'key' => $cart_item_key,
+                    'name' => $product->get_name(),
+                    'quantity' => $cart_item['quantity'],
+                    'price' => wc_price($product->get_price() * $cart_item['quantity'])
+                );
+            }
+            
+            wp_send_json_success($cart_data);
+        } else {
+            wp_send_json_error(array('message' => __('Failed to add item to cart', 'superwp-cafe-pos')));
+        }
     }
 }
 

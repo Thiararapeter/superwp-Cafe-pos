@@ -822,4 +822,121 @@ jQuery(document).ready(function($) {
             }
         });
     });
+
+    // Update price formatting to use WooCommerce settings
+    function formatPrice(price) {
+        const settings = superwpcafPOS.wc_settings;
+        price = parseFloat(price).toFixed(settings.decimals);
+        
+        // Format with separators
+        price = price.replace('.', settings.decimal_separator);
+        price = price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, settings.thousand_separator);
+        
+        // Add currency symbol in correct position
+        switch(settings.currency_position) {
+            case 'left':
+                return settings.currency_symbol + price;
+            case 'right':
+                return price + settings.currency_symbol;
+            case 'left_space':
+                return settings.currency_symbol + ' ' + price;
+            case 'right_space':
+                return price + ' ' + settings.currency_symbol;
+            default:
+                return settings.currency_symbol + price;
+        }
+    }
+
+    // Update tax calculation to use WooCommerce settings
+    function calculateTax(price) {
+        if (!superwpcafPOS.wc_settings.tax_enabled) {
+            return 0;
+        }
+        
+        // Use WooCommerce tax rates and calculations
+        // This is a simplified example - you might need more complex tax logic
+        const taxRate = superwpcafPOS.wc_settings.tax_rates[0]?.rate || 0;
+        return (price * taxRate) / 100;
+    }
+
+    // Add to cart functionality
+    $(document).on('click', '.add-to-cart-btn', function(e) {
+        e.preventDefault();
+        const $productItem = $(this).closest('.product-item');
+        const productId = $productItem.data('product-id');
+        
+        // Add loading state
+        $(this).addClass('loading').prop('disabled', true);
+        
+        // AJAX call to add item to cart
+        $.ajax({
+            url: superwpcafPOS.ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'superwpcaf_add_to_cart',
+                product_id: productId,
+                nonce: superwpcafPOS.nonce
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Update cart display
+                    updatePOSCart(response.data);
+                    
+                    // Show success notification
+                    showNotification('Item added to cart', 'success');
+                } else {
+                    showNotification(response.data.message || 'Failed to add item', 'error');
+                }
+            },
+            error: function() {
+                showNotification('Error adding item to cart', 'error');
+            },
+            complete: function() {
+                // Remove loading state
+                $('.add-to-cart-btn').removeClass('loading').prop('disabled', false);
+            }
+        });
+    });
+    
+    // Helper function to update cart display
+    function updatePOSCart(cartData) {
+        // Update cart items display
+        let cartHtml = '';
+        cartData.items.forEach(function(item) {
+            cartHtml += `
+                <div class="cart-item" data-item-key="${item.key}">
+                    <div class="item-name">${item.name}</div>
+                    <div class="item-quantity">
+                        <button class="quantity-btn minus">-</button>
+                        <input type="number" value="${item.quantity}" min="1">
+                        <button class="quantity-btn plus">+</button>
+                    </div>
+                    <div class="item-price">${item.price}</div>
+                    <button class="remove-item">&times;</button>
+                </div>
+            `;
+        });
+        
+        $('.pos-cart-items').html(cartHtml);
+        
+        // Update totals
+        $('.cart-subtotal').text(cartData.subtotal);
+        $('.cart-tax').text(cartData.tax);
+        $('.cart-total').text(cartData.total);
+    }
+    
+    // Helper function to show notifications
+    function showNotification(message, type = 'success') {
+        const notification = $(`
+            <div class="pos-notification ${type}">
+                ${message}
+            </div>
+        `).appendTo('body');
+        
+        setTimeout(function() {
+            notification.fadeOut(300, function() {
+                $(this).remove();
+            });
+        }, 2000);
+    }
 });

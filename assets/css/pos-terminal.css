@@ -199,6 +199,7 @@
     border-top-color: transparent;
     border-radius: 50%;
     animation: spin 1s linear infinite;
+    z-index: 1;
 }
 
 @keyframes spin {
@@ -1364,6 +1365,40 @@ input[type="radio"]:checked + .payment-label {
 .logout-button span {
     font-size: 14px;
     font-weight: 500;
+}
+
+/* Admin Button Styles */
+.admin-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+
+.admin-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+.admin-button i {
+    font-size: 14px;
+}
+
+.admin-button span {
+    font-size: 14px;
+}
+
+.dark-theme .admin-button {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.dark-theme .admin-button:hover {
+    background: rgba(255, 255, 255, 0.1);
 }
 
 /* Theme Variables */

@@ -26,6 +26,55 @@
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+// Define plugin constants - only if not already defined
+if (!defined('SUPERWPCAF_NAME')) {
+    define('SUPERWPCAF_NAME', 'SuperWp Cafe POS');
+}
+
+if (!defined('SUPERWPCAF_VERSION')) {
+    define('SUPERWPCAF_VERSION', '1.0.01');
+}
+
+if (!defined('SUPERWPCAF_PLUGIN_FILE')) {
+    define('SUPERWPCAF_PLUGIN_FILE', __FILE__);
+}
+
+if (!defined('SUPERWPCAF_PLUGIN_BASE')) {
+    define('SUPERWPCAF_PLUGIN_BASE', plugin_basename(__FILE__));
+}
+
+if (!defined('SUPERWPCAF_PLUGIN_DIR')) {
+    define('SUPERWPCAF_PLUGIN_DIR', plugin_dir_path(__FILE__));
+}
+
+if (!defined('SUPERWPCAF_PLUGIN_URL')) {
+    define('SUPERWPCAF_PLUGIN_URL', plugin_dir_url(__FILE__));
+}
+
+// Remove custom link and manage plugin actions
+add_filter('plugin_action_links_' . plugin_basename(__FILE__), function($links) {
+    // Keep the deactivate link if it exists
+    $deactivate_link = isset($links['deactivate']) ? $links['deactivate'] : '';
+    
+    // Clear other links
+    $links = array();
+    
+    // Add settings link
+    $settings_link = sprintf(
+        '<a href="%s">%s</a>',
+        esc_url(admin_url('admin.php?page=superwp-cafe-pos-settings')),
+        esc_html__('Settings', 'superwp-cafe-pos')
+    );
+    
+    // Add our links in desired order
+    $links[] = $settings_link;
+    if ($deactivate_link) {
+        $links['deactivate'] = $deactivate_link;
+    }
+    
+    return $links;
+}, 99);
+
 // Check if WooCommerce is active
 function superwpcaf_check_woocommerce() {
     include_once ABSPATH . 'wp-admin/includes/plugin.php';
@@ -92,26 +141,6 @@ function is_plugin_installed($plugin_path) {
     $plugins = get_plugins();
     return isset($plugins[$plugin_path]);
 }
-
-// Plugin name
-define( 'SUPERWPCAF_NAME',			'SuperWp Cafe POS' );
-
-// Plugin version
-if (!defined('SUPERWPCAF_VERSION')) {
-    define('SUPERWPCAF_VERSION', '1.0.01');
-}
-
-// Plugin Root File
-define( 'SUPERWPCAF_PLUGIN_FILE',	__FILE__ );
-
-// Plugin base
-define( 'SUPERWPCAF_PLUGIN_BASE',	plugin_basename( SUPERWPCAF_PLUGIN_FILE ) );
-
-// Plugin Folder Path
-define( 'SUPERWPCAF_PLUGIN_DIR',	plugin_dir_path( SUPERWPCAF_PLUGIN_FILE ) );
-
-// Plugin Folder URL
-define( 'SUPERWPCAF_PLUGIN_URL',	plugin_dir_url( SUPERWPCAF_PLUGIN_FILE ) );
 
 /**
  * Load the main class for the core functionality
@@ -202,7 +231,6 @@ if (superwpcaf_check_woocommerce()) {
         $default_options = array(
             'receipt_header' => '',
             'receipt_footer' => '',
-            'receipt_logo' => '',
             'auto_print_receipt' => 'no',
             'printer_type' => '80mm',
             'print_copies' => 1

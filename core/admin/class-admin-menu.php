@@ -13,6 +13,9 @@ if (!class_exists('Superwp_Cafe_Pos_Admin_Menu')) :
             add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
             add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_styles'));
             add_action('admin_init', array($this, 'register_pos_settings'));
+            
+            // Add settings link to plugin actions
+            add_filter('plugin_action_links_' . plugin_basename(SUPERWPCAF_PLUGIN_FILE), array($this, 'add_plugin_action_links'), 10);
         }
 
         public function enqueue_admin_scripts($hook) {
@@ -29,6 +32,23 @@ if (!class_exists('Superwp_Cafe_Pos_Admin_Menu')) :
                         'delete' => __('Delete', 'superwp-cafe-pos'),
                         'confirm_delete' => __('Are you sure you want to delete this role?', 'superwp-cafe-pos')
                     )
+                ));
+                
+                // Add media uploader scripts
+                wp_enqueue_media();
+                
+                wp_enqueue_script(
+                    'superwp-cafe-pos-admin-settings',
+                    SUPERWPCAF_PLUGIN_URL . 'assets/js/admin-settings.js',
+                    array('jquery'),
+                    SUPERWPCAF_VERSION,
+                    true
+                );
+                
+                // Add data for the media uploader
+                wp_localize_script('superwp-cafe-pos-admin-settings', 'superwpCafePosSettings', array(
+                    'mediaTitle' => __('Select Receipt Logo', 'superwp-cafe-pos'),
+                    'mediaButton' => __('Use this logo', 'superwp-cafe-pos')
                 ));
             }
         }
@@ -385,15 +405,8 @@ if (!class_exists('Superwp_Cafe_Pos_Admin_Menu')) :
             register_setting('superwp_cafe_pos_settings', 'superwp_cafe_pos_options');
             
             $options = get_option('superwp_cafe_pos_options', array(
-                'currency_position' => 'left',
-                'tax_calculation' => 'yes',
-                'default_tax_rate' => '10',
                 'receipt_header' => '',
-                'receipt_footer' => '',
-                'enable_kitchen_print' => 'no',
-                'enable_customer_display' => 'no',
-                'table_management' => 'no',
-                'low_stock_alert' => '5'
+                'receipt_footer' => ''
             ));
             ?>
             <div class="pos-settings-wrapper">
@@ -403,204 +416,51 @@ if (!class_exists('Superwp_Cafe_Pos_Admin_Menu')) :
                     <!-- General Settings Section -->
                     <div class="pos-settings-section">
                         <h2><?php _e('General Settings', 'superwp-cafe-pos'); ?></h2>
-                        <table class="form-table">
-                            <tr>
-                                <th scope="row">
-                                    <label for="currency_position"><?php _e('Currency Position', 'superwp-cafe-pos'); ?></label>
-                                </th>
-                                <td>
-                                    <select name="superwp_cafe_pos_options[currency_position]" id="currency_position">
-                                        <option value="left" <?php selected($options['currency_position'], 'left'); ?>><?php _e('Left ($99.99)', 'superwp-cafe-pos'); ?></option>
-                                        <option value="right" <?php selected($options['currency_position'], 'right'); ?>><?php _e('Right (99.99$)', 'superwp-cafe-pos'); ?></option>
-                                        <option value="left_space" <?php selected($options['currency_position'], 'left_space'); ?>><?php _e('Left with space ($ 99.99)', 'superwp-cafe-pos'); ?></option>
-                                        <option value="right_space" <?php selected($options['currency_position'], 'right_space'); ?>><?php _e('Right with space (99.99 $)', 'superwp-cafe-pos'); ?></option>
-                                    </select>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <th scope="row">
-                                    <label for="tax_calculation"><?php _e('Enable Tax Calculation', 'superwp-cafe-pos'); ?></label>
-                                </th>
-                                <td>
-                                    <label>
-                                        <input type="checkbox" 
-                                               name="superwp_cafe_pos_options[tax_calculation]" 
-                                               id="tax_calculation" 
-                                               value="yes" 
-                                               <?php checked($options['tax_calculation'], 'yes'); ?>>
-                                        <?php _e('Enable tax calculation in POS', 'superwp-cafe-pos'); ?>
-                                    </label>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <th scope="row">
-                                    <label for="default_tax_rate"><?php _e('Default Tax Rate (%)', 'superwp-cafe-pos'); ?></label>
-                                </th>
-                                <td>
-                                    <input type="number" 
-                                           name="superwp_cafe_pos_options[default_tax_rate]" 
-                                           id="default_tax_rate" 
-                                           value="<?php echo esc_attr($options['default_tax_rate']); ?>"
-                                           min="0"
-                                           max="100"
-                                           step="0.01">
-                                </td>
-                            </tr>
-                        </table>
+                        <p class="description">
+                            <?php _e('Currency, tax, and inventory settings are managed through WooCommerce settings.', 'superwp-cafe-pos'); ?>
+                            <a href="<?php echo admin_url('admin.php?page=wc-settings'); ?>" class="button button-secondary">
+                                <?php _e('Manage WooCommerce Settings', 'superwp-cafe-pos'); ?>
+                            </a>
+                        </p>
                     </div>
 
-                    <!-- Receipt Settings Section -->
+                    <!-- Receipt Settings -->
+                    <?php $this->render_receipt_settings($options); ?>
+
+                    <div class="submit-wrapper">
+                        <button type="submit" class="button button-primary">
+                            <?php _e('Save Settings', 'superwp-cafe-pos'); ?>
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <?php
+        }
+
+        private function render_receipt_settings($options) {
+            ?>
                     <div class="pos-settings-section">
                         <h2><?php _e('Receipt Settings', 'superwp-cafe-pos'); ?></h2>
                         <table class="form-table">
                             <tr>
                                 <th scope="row">
-                                    <label for="receipt_logo"><?php _e('Receipt Logo', 'superwp-cafe-pos'); ?></label>
-                                </th>
-                                <td>
-                                    <div class="receipt-logo-preview">
-                                        <?php 
-                                        $logo_id = isset($options['receipt_logo']) ? $options['receipt_logo'] : '';
-                                        $logo_url = $logo_id ? wp_get_attachment_url($logo_id) : '';
-                                        ?>
-                                        <img src="<?php echo esc_url($logo_url); ?>" style="max-width: 200px; <?php echo $logo_url ? '' : 'display: none;'; ?>">
-                                    </div>
-                                    <input type="hidden" name="superwp_cafe_pos_options[receipt_logo]" id="receipt_logo" value="<?php echo esc_attr($logo_id); ?>">
-                                    <button type="button" class="button upload-logo-btn"><?php _e('Upload Logo', 'superwp-cafe-pos'); ?></button>
-                                    <button type="button" class="button remove-logo-btn" <?php echo $logo_url ? '' : 'style="display: none;"'; ?>><?php _e('Remove Logo', 'superwp-cafe-pos'); ?></button>
-                                    <p class="description"><?php _e('Upload a logo to display at the top of receipts', 'superwp-cafe-pos'); ?></p>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <th scope="row">
                                     <label for="receipt_header"><?php _e('Receipt Header', 'superwp-cafe-pos'); ?></label>
                                 </th>
                                 <td>
-                                    <textarea name="superwp_cafe_pos_options[receipt_header]" 
-                                              id="receipt_header" 
-                                              rows="4" 
-                                              class="large-text"><?php echo esc_textarea($options['receipt_header']); ?></textarea>
-                                    <p class="description"><?php _e('This text will appear at the top of the receipt. You can use HTML.', 'superwp-cafe-pos'); ?></p>
+                            <textarea name="superwp_cafe_pos_options[receipt_header]" id="receipt_header" rows="3" class="large-text"><?php echo esc_textarea($options['receipt_header'] ?? ''); ?></textarea>
+                            <p class="description"><?php _e('Text to appear at the top of the receipt', 'superwp-cafe-pos'); ?></p>
                                 </td>
                             </tr>
-
                             <tr>
                                 <th scope="row">
                                     <label for="receipt_footer"><?php _e('Receipt Footer', 'superwp-cafe-pos'); ?></label>
                                 </th>
                                 <td>
-                                    <textarea name="superwp_cafe_pos_options[receipt_footer]" 
-                                              id="receipt_footer" 
-                                              rows="4" 
-                                              class="large-text"><?php echo esc_textarea($options['receipt_footer']); ?></textarea>
-                                    <p class="description"><?php _e('This text will appear at the bottom of the receipt. You can use HTML.', 'superwp-cafe-pos'); ?></p>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <th scope="row">
-                                    <label for="auto_print_receipt"><?php _e('Auto Print Receipt', 'superwp-cafe-pos'); ?></label>
-                                </th>
-                                <td>
-                                    <label>
-                                        <input type="checkbox" 
-                                               name="superwp_cafe_pos_options[auto_print_receipt]" 
-                                               id="auto_print_receipt" 
-                                               value="yes" 
-                                               <?php checked(isset($options['auto_print_receipt']) && $options['auto_print_receipt'] === 'yes'); ?>>
-                                        <?php _e('Automatically print receipt after sale', 'superwp-cafe-pos'); ?>
-                                    </label>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <th scope="row">
-                                    <label for="printer_type"><?php _e('Printer Type', 'superwp-cafe-pos'); ?></label>
-                                </th>
-                                <td>
-                                    <select name="superwp_cafe_pos_options[printer_type]" id="printer_type">
-                                        <option value="80mm" <?php selected(isset($options['printer_type']) ? $options['printer_type'] : '80mm', '80mm'); ?>>
-                                            <?php _e('80mm Thermal Printer', 'superwp-cafe-pos'); ?>
-                                        </option>
-                                        <option value="58mm" <?php selected(isset($options['printer_type']) ? $options['printer_type'] : '80mm', '58mm'); ?>>
-                                            <?php _e('58mm Thermal Printer', 'superwp-cafe-pos'); ?>
-                                        </option>
-                                    </select>
-                                    <p class="description"><?php _e('Select your thermal printer paper size', 'superwp-cafe-pos'); ?></p>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <th scope="row">
-                                    <label for="print_copies"><?php _e('Receipt Copies', 'superwp-cafe-pos'); ?></label>
-                                </th>
-                                <td>
-                                    <input type="number" 
-                                           name="superwp_cafe_pos_options[print_copies]" 
-                                           id="print_copies" 
-                                           value="<?php echo esc_attr(isset($options['print_copies']) ? $options['print_copies'] : 1); ?>"
-                                           min="1"
-                                           max="3">
-                                    <p class="description"><?php _e('Number of receipt copies to print (1-3)', 'superwp-cafe-pos'); ?></p>
+                            <textarea name="superwp_cafe_pos_options[receipt_footer]" id="receipt_footer" rows="3" class="large-text"><?php echo esc_textarea($options['receipt_footer'] ?? ''); ?></textarea>
+                            <p class="description"><?php _e('Text to appear at the bottom of the receipt', 'superwp-cafe-pos'); ?></p>
                                 </td>
                             </tr>
                         </table>
-                    </div>
-
-                    <!-- Advanced Features Section -->
-                    <div class="pos-settings-section">
-                        <h2><?php _e('Advanced Features', 'superwp-cafe-pos'); ?></h2>
-                        <table class="form-table">
-                            <tr>
-                                <th scope="row"><?php _e('Additional Features', 'superwp-cafe-pos'); ?></th>
-                                <td>
-                                    <label>
-                                        <input type="checkbox" 
-                                               name="superwp_cafe_pos_options[enable_kitchen_print]" 
-                                               value="yes" 
-                                               <?php checked($options['enable_kitchen_print'], 'yes'); ?>>
-                                        <?php _e('Enable Kitchen Printing', 'superwp-cafe-pos'); ?>
-                                    </label>
-                                    <br>
-                                    <label>
-                                        <input type="checkbox" 
-                                               name="superwp_cafe_pos_options[enable_customer_display]" 
-                                               value="yes" 
-                                               <?php checked($options['enable_customer_display'], 'yes'); ?>>
-                                        <?php _e('Enable Customer Display', 'superwp-cafe-pos'); ?>
-                                    </label>
-                                    <br>
-                                    <label>
-                                        <input type="checkbox" 
-                                               name="superwp_cafe_pos_options[table_management]" 
-                                               value="yes" 
-                                               <?php checked($options['table_management'], 'yes'); ?>>
-                                        <?php _e('Enable Table Management', 'superwp-cafe-pos'); ?>
-                                    </label>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <th scope="row">
-                                    <label for="low_stock_alert"><?php _e('Low Stock Alert', 'superwp-cafe-pos'); ?></label>
-                                </th>
-                                <td>
-                                    <input type="number" 
-                                           name="superwp_cafe_pos_options[low_stock_alert]" 
-                                           id="low_stock_alert" 
-                                           value="<?php echo esc_attr($options['low_stock_alert']); ?>"
-                                           min="0">
-                                    <p class="description"><?php _e('Show alert when product stock falls below this number', 'superwp-cafe-pos'); ?></p>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-
-                    <?php submit_button(); ?>
-                </form>
             </div>
             <?php
         }
@@ -700,24 +560,13 @@ if (!class_exists('Superwp_Cafe_Pos_Admin_Menu')) :
         public function sanitize_pos_settings($input) {
             $sanitized = array();
             
-            // Sanitize printer type
-            $sanitized['printer_type'] = isset($input['printer_type']) && 
-                                        in_array($input['printer_type'], array('80mm', '58mm')) ? 
-                                        $input['printer_type'] : '80mm';
-            
-            // Sanitize print copies
-            $sanitized['print_copies'] = isset($input['print_copies']) ? 
-                                        min(max(intval($input['print_copies']), 1), 3) : 1;
-            
-            // Sanitize other existing fields
+            // Sanitize receipt settings only
             $sanitized['receipt_header'] = isset($input['receipt_header']) ? 
                                           wp_kses_post($input['receipt_header']) : '';
             $sanitized['receipt_footer'] = isset($input['receipt_footer']) ? 
                                           wp_kses_post($input['receipt_footer']) : '';
             $sanitized['receipt_logo'] = isset($input['receipt_logo']) ? 
                                       absint($input['receipt_logo']) : '';
-            $sanitized['auto_print_receipt'] = isset($input['auto_print_receipt']) ? 
-                                              'yes' : 'no';
             
             return $sanitized;
         }
@@ -728,6 +577,40 @@ if (!class_exists('Superwp_Cafe_Pos_Admin_Menu')) :
                 'superwp_cafe_pos_options',
                 array($this, 'sanitize_pos_settings')
             );
+        }
+
+        // Add helper method to get WooCommerce settings
+        private function get_wc_settings() {
+            return array(
+                'currency' => get_woocommerce_currency(),
+                'currency_position' => get_option('woocommerce_currency_pos'),
+                'tax_calculation' => wc_tax_enabled() ? 'yes' : 'no',
+                'tax_rates' => WC_Tax::get_rates()
+            );
+        }
+
+        // Add settings link to plugin listing
+        public function add_plugin_action_links($links) {
+            // Keep the deactivate link if it exists
+            $deactivate_link = isset($links['deactivate']) ? $links['deactivate'] : '';
+            
+            // Clear other links
+            $links = array();
+            
+            // Add settings link
+            $settings_link = sprintf(
+                '<a href="%s">%s</a>',
+                esc_url(admin_url('admin.php?page=superwp-cafe-pos-settings')),
+                esc_html__('Settings', 'superwp-cafe-pos')
+            );
+            
+            // Add our links in desired order
+            $links[] = $settings_link;
+            if ($deactivate_link) {
+                $links['deactivate'] = $deactivate_link;
+            }
+            
+            return $links;
         }
     }
 

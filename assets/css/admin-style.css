@@ -91,34 +91,42 @@
     border-radius: 4px;
     text-align: center;
     transition: all 0.3s ease;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .logo-preview img {
     max-width: 200px;
     max-height: 80px;
+    width: auto;
     height: auto;
     display: block;
     margin: 0 auto;
     object-fit: contain;
 }
 
+.logo-preview:hover {
+    border-color: #0073aa;
+    background: #f0f0f1;
+}
+
 .logo-actions {
+    margin-top: 15px;
     display: flex;
-    gap: 12px;
-    margin: 20px 0;
+    gap: 10px;
+    align-items: center;
 }
 
 .logo-actions .button {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 6px 12px;
-    height: auto;
+    gap: 5px;
 }
 
 .logo-actions .button i {
-    font-size: 16px;
-    line-height: 1;
+    margin-top: 3px;
 }
 
 .hidden {

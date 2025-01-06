@@ -344,4 +344,32 @@
 .toggle-status {
     min-width: 100px;
     text-align: center;
+}
+
+/* Admin Bar Menu Styles */
+#wpadminbar #wp-admin-bar-superwp-cafe-pos > .ab-item {
+    color: #fff;
+}
+
+#wpadminbar #wp-admin-bar-superwp-cafe-pos > .ab-item:before {
+    content: "\f513"; /* Store icon */
+    top: 2px;
+}
+
+#wpadminbar #wp-admin-bar-superwp-cafe-pos-terminal > .ab-item:before {
+    content: "\f541"; /* Terminal icon */
+}
+
+#wpadminbar #wp-admin-bar-superwp-cafe-pos-settings > .ab-item:before {
+    content: "\f111"; /* Settings icon */
+}
+
+/* Hover states */
+#wpadminbar #wp-admin-bar-superwp-cafe-pos:hover > .ab-item {
+    background: #2271b1;
+    color: #fff;
+}
+
+#wpadminbar .superwp-cafe-pos-terminal {
+    background: #2271b1;
 } 
