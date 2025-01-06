@@ -143,18 +143,18 @@ if (!class_exists('Superwp_Cafe_Pos_Admin_Menu')) :
 
                 <!-- Launch Button Section -->
                 <div class="launch-pos-section">
-                    <a href="<?php echo esc_url($pos_url); ?>" 
+                        <a href="<?php echo esc_url($pos_url); ?>" 
                        class="launch-pos-button" 
-                       target="_blank" 
-                       rel="noopener noreferrer">
+                           target="_blank" 
+                           rel="noopener noreferrer">
                         <span class="icon">
                             <i class="fas fa-cash-register"></i>
                         </span>
                         <span class="text">
                             <?php _e('Launch POS Terminal', 'superwp-cafe-pos'); ?>
                         </span>
-                    </a>
-                </div>
+                        </a>
+                    </div>
 
                 <!-- Quick Actions -->
                 <div class="other-actions">
