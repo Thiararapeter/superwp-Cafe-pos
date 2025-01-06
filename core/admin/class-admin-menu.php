@@ -9,13 +9,20 @@ if (!class_exists('Superwp_Cafe_Pos_Admin_Menu')) :
         private static $instance = null;
 
         public function __construct() {
-            add_action('admin_menu', array($this, 'add_pos_menu'));
-            add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
-            add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_styles'));
-            add_action('admin_init', array($this, 'register_pos_settings'));
+            // Check if we're on POS terminal before adding admin menus
+            if (!$this->is_pos_terminal_page()) {
+                add_action('admin_menu', array($this, 'add_pos_menu'));
+                add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
+                add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_styles'));
+                add_action('admin_init', array($this, 'register_pos_settings'));
+                
+                // Add settings link to plugin actions
+                add_filter('plugin_action_links_' . plugin_basename(SUPERWPCAF_PLUGIN_FILE), array($this, 'add_plugin_action_links'), 10);
+            }
             
-            // Add settings link to plugin actions
-            add_filter('plugin_action_links_' . plugin_basename(SUPERWPCAF_PLUGIN_FILE), array($this, 'add_plugin_action_links'), 10);
+            // Add AJAX handlers
+            add_action('wp_ajax_superwpcaf_update_receipt_preview', array($this, 'ajax_update_receipt_preview'));
+            add_action('wp_ajax_superwpcaf_save_receipt_settings', array($this, 'ajax_save_receipt_settings'));
         }
 
         public function enqueue_admin_scripts($hook) {
@@ -439,28 +446,86 @@ if (!class_exists('Superwp_Cafe_Pos_Admin_Menu')) :
 
         private function render_receipt_settings($options) {
             ?>
-                    <div class="pos-settings-section">
-                        <h2><?php _e('Receipt Settings', 'superwp-cafe-pos'); ?></h2>
-                        <table class="form-table">
-                            <tr>
-                                <th scope="row">
-                                    <label for="receipt_header"><?php _e('Receipt Header', 'superwp-cafe-pos'); ?></label>
-                                </th>
-                                <td>
+            <div class="pos-settings-section">
+                <h2><?php _e('Receipt Settings', 'superwp-cafe-pos'); ?></h2>
+                
+                <!-- Receipt Preview -->
+                <div class="receipt-preview-wrapper">
+                    <h3><?php _e('Receipt Preview', 'superwp-cafe-pos'); ?></h3>
+                    <div class="receipt-preview" id="receipt-preview">
+                        <?php include SUPERWPCAF_PLUGIN_DIR . 'templates/receipt-preview.php'; ?>
+                    </div>
+                    <button type="button" class="button" id="refresh-preview">
+                        <?php _e('Refresh Preview', 'superwp-cafe-pos'); ?>
+                    </button>
+                </div>
+
+                <table class="form-table">
+                    <!-- Staff Information -->
+                    <tr>
+                        <th scope="row"><?php _e('Staff Information', 'superwp-cafe-pos'); ?></th>
+                        <td>
+                            <fieldset>
+                                <label>
+                                    <input type="checkbox" name="superwp_cafe_pos_options[show_cashier]" value="1" 
+                                        class="preview-trigger" <?php checked(isset($options['show_cashier']) && $options['show_cashier']); ?>>
+                                    <?php _e('Show Cashier Name', 'superwp-cafe-pos'); ?>
+                                </label><br>
+                                <label>
+                                    <input type="checkbox" name="superwp_cafe_pos_options[show_waiter]" value="1" 
+                                        class="preview-trigger" <?php checked(isset($options['show_waiter']) && $options['show_waiter']); ?>>
+                                    <?php _e('Show Waiter Name', 'superwp-cafe-pos'); ?>
+                                </label>
+                            </fieldset>
+                        </td>
+                    </tr>
+
+                    <!-- Header Settings -->
+                    <tr>
+                        <th scope="row">
+                            <label for="receipt_header"><?php _e('Receipt Header', 'superwp-cafe-pos'); ?></label>
+                        </th>
+                        <td>
                             <textarea name="superwp_cafe_pos_options[receipt_header]" id="receipt_header" rows="3" class="large-text"><?php echo esc_textarea($options['receipt_header'] ?? ''); ?></textarea>
-                            <p class="description"><?php _e('Text to appear at the top of the receipt', 'superwp-cafe-pos'); ?></p>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th scope="row">
-                                    <label for="receipt_footer"><?php _e('Receipt Footer', 'superwp-cafe-pos'); ?></label>
-                                </th>
-                                <td>
+                            <p class="description"><?php _e('Text to appear at the top of the receipt. Supports basic HTML.', 'superwp-cafe-pos'); ?></p>
+                        </td>
+                    </tr>
+
+                    <!-- Item Details Customization -->
+                    <tr>
+                        <th scope="row"><?php _e('Item Details', 'superwp-cafe-pos'); ?></th>
+                        <td>
+                            <fieldset>
+                                <label>
+                                    <input type="checkbox" name="superwp_cafe_pos_options[show_sku]" value="1" 
+                                        <?php checked(isset($options['show_sku']) && $options['show_sku']); ?>>
+                                    <?php _e('Show SKU', 'superwp-cafe-pos'); ?>
+                                </label><br>
+                                <label>
+                                    <input type="checkbox" name="superwp_cafe_pos_options[show_tax]" value="1" 
+                                        <?php checked(isset($options['show_tax']) && $options['show_tax']); ?>>
+                                    <?php _e('Show Tax per Item', 'superwp-cafe-pos'); ?>
+                                </label><br>
+                                <label>
+                                    <input type="checkbox" name="superwp_cafe_pos_options[show_discount]" value="1" 
+                                        <?php checked(isset($options['show_discount']) && $options['show_discount']); ?>>
+                                    <?php _e('Show Discounts', 'superwp-cafe-pos'); ?>
+                                </label>
+                            </fieldset>
+                        </td>
+                    </tr>
+
+                    <!-- Footer Settings -->
+                    <tr>
+                        <th scope="row">
+                            <label for="receipt_footer"><?php _e('Receipt Footer', 'superwp-cafe-pos'); ?></label>
+                        </th>
+                        <td>
                             <textarea name="superwp_cafe_pos_options[receipt_footer]" id="receipt_footer" rows="3" class="large-text"><?php echo esc_textarea($options['receipt_footer'] ?? ''); ?></textarea>
-                            <p class="description"><?php _e('Text to appear at the bottom of the receipt', 'superwp-cafe-pos'); ?></p>
-                                </td>
-                            </tr>
-                        </table>
+                            <p class="description"><?php _e('Text to appear at the bottom of the receipt. Supports basic HTML.', 'superwp-cafe-pos'); ?></p>
+                        </td>
+                    </tr>
+                </table>
             </div>
             <?php
         }
@@ -611,6 +676,100 @@ if (!class_exists('Superwp_Cafe_Pos_Admin_Menu')) :
             }
             
             return $links;
+        }
+
+        /**
+         * Check if current page is POS terminal
+         *
+         * @return bool
+         */
+        private function is_pos_terminal_page() {
+            if (is_admin()) {
+                return false;
+            }
+            
+            global $post;
+            $pos_page_slug = 'pos-terminal'; // Adjust this if your slug is different
+            
+            return is_page($pos_page_slug) || 
+                   (is_page() && $post && has_shortcode($post->post_content, 'superwp_cafe_pos_terminal'));
+        }
+
+        /**
+         * AJAX handler for updating receipt preview
+         */
+        public function ajax_update_receipt_preview() {
+            check_ajax_referer('superwp-cafe-pos-admin', 'nonce');
+            
+            $settings = isset($_POST['settings']) ? $_POST['settings'] : array();
+            
+            // Update temporary preview settings
+            update_option('superwp_cafe_pos_preview_settings', $settings);
+            
+            ob_start();
+            include SUPERWPCAF_PLUGIN_DIR . 'templates/receipt-preview.php';
+            $preview_html = ob_get_clean();
+            
+            wp_send_json_success(array('preview' => $preview_html));
+        }
+
+        /**
+         * AJAX handler for saving receipt settings
+         */
+        public function ajax_save_receipt_settings() {
+            check_ajax_referer('superwp-cafe-pos-admin', 'nonce');
+            
+            if (!isset($_POST['superwp_cafe_pos_options'])) {
+                wp_send_json_error(array('message' => __('No settings data received', 'superwp-cafe-pos')));
+                return;
+            }
+
+            // Get existing options
+            $existing_options = get_option('superwp_cafe_pos_options', array());
+            
+            // Get posted data
+            $posted_options = $_POST['superwp_cafe_pos_options'];
+            
+            // Ensure checkbox values are preserved
+            $checkbox_fields = array(
+                'show_cashier',
+                'show_waiter',
+                'show_sku',
+                'show_tax',
+                'show_discount'
+            );
+
+            foreach ($checkbox_fields as $field) {
+                $existing_options[$field] = isset($posted_options[$field]) ? 1 : 0;
+            }
+
+            // Merge other settings
+            $other_fields = array(
+                'receipt_header',
+                'receipt_footer'
+            );
+
+            foreach ($other_fields as $field) {
+                if (isset($posted_options[$field])) {
+                    $existing_options[$field] = sanitize_text_field($posted_options[$field]);
+                }
+            }
+
+            // Ensure template is set
+            if (empty($existing_options['receipt_template'])) {
+                $existing_options['receipt_template'] = 'standard';
+            }
+
+            // Save the merged options
+            update_option('superwp_cafe_pos_options', $existing_options);
+            
+            // Clear preview settings
+            delete_option('superwp_cafe_pos_preview_settings');
+
+            wp_send_json_success(array(
+                'message' => __('Settings saved successfully', 'superwp-cafe-pos'),
+                'options' => $existing_options
+            ));
         }
     }
 

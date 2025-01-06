@@ -372,4 +372,159 @@
 
 #wpadminbar .superwp-cafe-pos-terminal {
     background: #2271b1;
+}
+
+/* Receipt Preview Styles */
+.receipt-preview-wrapper {
+    margin: 20px 0;
+    padding: 20px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.receipt-preview {
+    max-width: 380px;
+    margin: 0 auto;
+    background: white;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.receipt-preview-content {
+    font-family: monospace;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.receipt-preview .business-name {
+    text-align: center;
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.receipt-preview .receipt-custom-header,
+.receipt-preview .receipt-footer {
+    text-align: center;
+    margin: 10px 0;
+    font-size: 11px;
+}
+
+.receipt-preview .receipt-order-info {
+    margin: 15px 0;
+    border-top: 1px dashed #ddd;
+    border-bottom: 1px dashed #ddd;
+    padding: 10px 0;
+}
+
+.receipt-preview .receipt-items {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+}
+
+.receipt-preview .receipt-items th {
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.receipt-preview .receipt-items td {
+    padding: 3px 0;
+}
+
+.receipt-preview .tax-row td {
+    font-size: 10px;
+    color: #666;
+}
+
+.receipt-preview .receipt-totals {
+    border-top: 1px dashed #ddd;
+    padding-top: 10px;
+}
+
+.receipt-preview .receipt-totals > div {
+    display: flex;
+    justify-content: space-between;
+    margin: 5px 0;
+}
+
+.receipt-preview .total {
+    font-weight: bold;
+    border-top: 1px solid #ddd;
+    padding-top: 5px;
+    margin-top: 5px;
+}
+
+/* Template Variations */
+.receipt-preview-content.compact {
+    font-size: 10px;
+}
+
+.receipt-preview-content.detailed .receipt-items td {
+    padding: 5px 0;
+}
+
+#refresh-preview {
+    display: block;
+    margin: 10px auto;
+}
+
+/* Add to your existing receipt preview styles */
+.receipt-preview .staff-info {
+    margin: 10px 0;
+    padding: 5px 0;
+    border-top: 1px dashed #ddd;
+}
+
+.receipt-preview .staff-info p {
+    margin: 3px 0;
+    font-size: 11px;
+}
+
+/* Template variations */
+.receipt-preview-content.compact .staff-info {
+    font-size: 10px;
+}
+
+.receipt-preview-content.detailed .staff-info {
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    padding: 8px 0;
+    margin: 12px 0;
+}
+
+/* Add to your existing receipt preview styles */
+.receipt-preview.loading {
+    position: relative;
+    min-height: 200px;
+}
+
+.receipt-preview.loading:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    z-index: 1;
+}
+
+.receipt-preview.loading:after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #2271b1;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spinner .6s linear infinite;
+    z-index: 2;
+}
+
+@keyframes spinner {
+    to {transform: rotate(360deg);}
 } 

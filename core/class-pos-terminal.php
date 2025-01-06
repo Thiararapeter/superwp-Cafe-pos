@@ -15,6 +15,10 @@ class Superwp_Cafe_Pos_Terminal {
     }
 
     public function __construct() {
+        // Remove admin bar and access completely for POS terminal
+        add_action('init', array($this, 'handle_pos_admin_access'));
+        add_filter('show_admin_bar', array($this, 'hide_admin_bar_in_pos'));
+        
         add_shortcode('superwpcaf_pos_terminal', array($this, 'render_pos_terminal'));
         add_action('template_redirect', array($this, 'check_pos_access'));
         add_action('wp_enqueue_scripts', array($this, 'enqueue_pos_assets'));
@@ -50,6 +54,67 @@ class Superwp_Cafe_Pos_Terminal {
         
         // Add new AJAX handler for payment fields
         add_action('wp_ajax_superwpcaf_get_payment_fields', array($this, 'get_payment_fields'));
+    }
+
+    /**
+     * Handle admin access for POS terminal
+     */
+    public function handle_pos_admin_access() {
+        if ($this->is_pos_terminal_page()) {
+            // Remove admin bar completely
+            add_filter('show_admin_bar', '__return_false');
+            
+            // Remove admin bar styles and scripts
+            add_action('wp_print_styles', function() {
+                wp_deregister_style('admin-bar');
+                wp_deregister_style('dashicons');
+            }, 99);
+            
+            add_action('wp_print_scripts', function() {
+                wp_deregister_script('admin-bar');
+            }, 99);
+            
+            // Remove the admin bar margin from html
+            add_action('get_header', function() {
+                remove_action('wp_head', '_admin_bar_bump_cb');
+            });
+            
+            // Remove the admin bar init
+            remove_action('init', '_wp_admin_bar_init');
+            remove_action('wp_head', 'wp_admin_bar_header');
+            remove_action('wp_footer', 'wp_admin_bar_render', 1000);
+        }
+    }
+
+    /**
+     * Hide admin bar in POS terminal
+     *
+     * @return bool
+     */
+    public function hide_admin_bar_in_pos() {
+        // Check if we're on the POS terminal page
+        if ($this->is_pos_terminal_page()) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Check if current page is POS terminal
+     *
+     * @return bool
+     */
+    private function is_pos_terminal_page() {
+        // Check if we're on the POS terminal page
+        if (is_admin()) {
+            return false;
+        }
+        
+        global $post;
+        $pos_page_slug = 'pos-terminal'; // Adjust this if your slug is different
+        
+        return is_page($pos_page_slug) || 
+               (is_page() && $post && has_shortcode($post->post_content, 'superwp_cafe_pos_terminal'));
     }
 
     public function remove_pos_page_title($title, $id = null) {

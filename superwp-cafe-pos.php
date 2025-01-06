@@ -261,6 +261,26 @@ function superwpcaf_activate_plugin() {
     
     // Set default options
     add_option('superwpcaf_pos_initialized', true);
+
+    // Set default receipt options
+    $default_options = array(
+        'receipt_template' => 'standard',
+        'receipt_header' => '',
+        'receipt_footer' => '',
+        'show_cashier' => 1, // Enable by default
+        'show_waiter' => 1,  // Enable by default
+        'show_sku' => 0,
+        'show_tax' => 1,
+        'show_discount' => 0,
+        'auto_print_receipt' => 'no',
+        'printer_type' => '80mm',
+        'print_copies' => 1
+    );
+
+    // Only set defaults if options don't exist
+    if (!get_option('superwp_cafe_pos_options')) {
+        add_option('superwp_cafe_pos_options', $default_options);
+    }
 }
 
 // Add a deactivation hook to clean up if needed
