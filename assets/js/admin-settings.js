@@ -40,11 +40,11 @@ jQuery(document).ready(function($) {
         return {
             header: $('#receipt_header').val(),
             footer: $('#receipt_footer').val(),
-            show_sku: $('input[name="superwp_cafe_pos_options[show_sku]"]').is(':checked'),
-            show_tax: $('input[name="superwp_cafe_pos_options[show_tax]"]').is(':checked'),
-            show_discount: $('input[name="superwp_cafe_pos_options[show_discount]"]').is(':checked'),
-            show_cashier: $('input[name="superwp_cafe_pos_options[show_cashier]"]').is(':checked'),
-            show_waiter: $('input[name="superwp_cafe_pos_options[show_waiter]"]').is(':checked')
+            show_sku: $('input[name="superwp_cafe_pos_options[show_sku]"]').is(':checked') ? 1 : 0,
+            show_tax: $('input[name="superwp_cafe_pos_options[show_tax]"]').is(':checked') ? 1 : 0,
+            show_discount: $('input[name="superwp_cafe_pos_options[show_discount]"]').is(':checked') ? 1 : 0,
+            show_cashier: $('input[name="superwp_cafe_pos_options[show_cashier]"]').is(':checked') ? 1 : 0,
+            show_waiter: $('input[name="superwp_cafe_pos_options[show_waiter]"]').is(':checked') ? 1 : 0
         };
     }
 
@@ -108,4 +108,29 @@ jQuery(document).ready(function($) {
     
     // Refresh preview button
     $('#refresh-preview').on('click', updateReceiptPreview);
+
+    // Handle print preview button click
+    $('.print-preview').on('click', function() {
+        // Add a temporary class for printing
+        $('.pos-receipt.print-friendly').addClass('printing');
+
+        // Trigger print
+        window.print();
+
+        // Remove the temporary class after printing
+        setTimeout(function() {
+            $('.pos-receipt.print-friendly').removeClass('printing');
+        }, 1000);
+    });
+
+    // Add keyboard shortcut for printing (Ctrl/Cmd + P)
+    $(document).on('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.keyCode === 80) {
+            // Only handle if we're on the settings page
+            if ($('.receipt-preview').length) {
+                e.preventDefault();
+                $('.print-preview').trigger('click');
+            }
+        }
+    });
 });

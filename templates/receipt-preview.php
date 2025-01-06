@@ -37,7 +37,7 @@ $sample_order = array(
             'name' => 'Sample Product 2',
             'qty' => 1,
             'price' => 15.00,
-            'sku' => 'SKU002',
+            'sku' => 'SKU002', 
             'tax' => 1.50,
             'discount' => 0,
         ),
@@ -47,5 +47,14 @@ $sample_order = array(
     'total' => 38.50,
 );
 
-// Load the standard template
-include SUPERWPCAF_PLUGIN_DIR . 'templates/receipts/standard.php'; 
+// Add print-friendly wrapper
+?>
+<div class="receipt-preview-wrapper">
+    <div class="pos-receipt print-friendly" id="printable-receipt">
+        <?php
+        // Load the appropriate template based on settings
+        $template = isset($options['receipt_template']) ? $options['receipt_template'] : 'standard';
+        include SUPERWPCAF_PLUGIN_DIR . 'templates/receipts/' . $template . '.php';
+        ?>
+    </div>
+</div> 

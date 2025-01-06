@@ -4,38 +4,35 @@
  */
 ?>
 <div class="items-section">
-    <table class="items-table">
+    <table class="receipt-items">
         <thead>
             <tr>
                 <th><?php _e('Item', 'superwp-cafe-pos'); ?></th>
+                <?php if (!empty($options['show_sku'])): ?>
+                    <th><?php _e('SKU', 'superwp-cafe-pos'); ?></th>
+                <?php endif; ?>
                 <th><?php _e('Qty', 'superwp-cafe-pos'); ?></th>
                 <th><?php _e('Price', 'superwp-cafe-pos'); ?></th>
+                <?php if (!empty($options['show_discount'])): ?>
+                    <th><?php _e('Disc', 'superwp-cafe-pos'); ?></th>
+                <?php endif; ?>
+                <th><?php _e('Total', 'superwp-cafe-pos'); ?></th>
             </tr>
         </thead>
         <tbody>
             <?php foreach ($sample_order['items'] as $item): ?>
                 <tr>
-                    <td>
-                        <?php echo esc_html($item['name']); ?>
-                        <?php if (!empty($options['show_sku'])): ?>
-                            <br><small class="sku"><?php echo esc_html($item['sku']); ?></small>
-                        <?php endif; ?>
-                    </td>
-                    <td><?php echo esc_html($item['qty']); ?></td>
-                    <td><?php echo wc_price($item['price'] * $item['qty']); ?></td>
+                    <td><?php echo esc_html($item['name']); ?></td>
+                    <?php if (!empty($options['show_sku'])): ?>
+                        <td><?php echo esc_html($item['sku']); ?></td>
+                    <?php endif; ?>
+                    <td class="qty"><?php echo esc_html($item['qty']); ?></td>
+                    <td class="price"><?php echo wc_price($item['price']); ?></td>
+                    <?php if (!empty($options['show_discount'])): ?>
+                        <td class="discount"><?php echo wc_price($item['discount']); ?></td>
+                    <?php endif; ?>
+                    <td class="total"><?php echo wc_price($item['qty'] * $item['price'] - $item['discount']); ?></td>
                 </tr>
-                <?php if (!empty($options['show_tax'])): ?>
-                    <tr class="tax-row">
-                        <td colspan="2"><?php _e('Tax', 'superwp-cafe-pos'); ?></td>
-                        <td><?php echo wc_price($item['tax']); ?></td>
-                    </tr>
-                <?php endif; ?>
-                <?php if (!empty($options['show_discount']) && $item['discount'] > 0): ?>
-                    <tr class="discount-row">
-                        <td colspan="2"><?php _e('Discount', 'superwp-cafe-pos'); ?></td>
-                        <td>-<?php echo wc_price($item['discount']); ?></td>
-                    </tr>
-                <?php endif; ?>
             <?php endforeach; ?>
         </tbody>
     </table>
