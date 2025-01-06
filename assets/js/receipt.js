@@ -1,3 +1,4 @@
+jQuery(document).ready(function($) {
 class POSReceipt {
     constructor() {
         this.bindEvents();
@@ -125,6 +126,6 @@ class POSReceipt {
 }
 
 // Initialize receipt functionality
-jQuery(document).ready(() => {
+
     window.POSReceipt = new POSReceipt();
 }); 
